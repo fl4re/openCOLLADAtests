@@ -1,0 +1,7 @@
+F:\Dev\COLLADA-CTS\Core\SchemaValidate\SchemaValidate\bin\Debug\SchemaValidate.exe
+F:\Dev\COLLADA-CTS\Core\SchemaValidate\SchemaValidate\bin\Debug\SchemaValidate.pdb
+F:\Dev\COLLADA-CTS\Core\SchemaValidate\SchemaValidate\obj\Debug\SchemaValidate.exe
+F:\Dev\COLLADA-CTS\Core\SchemaValidate\SchemaValidate\obj\Debug\SchemaValidate.pdb
+F:\Dev\COLLADA-CTS\Core\SchemaValidate\SchemaValidate\obj\Debug\SchemaValidate.csprojResolveAssemblyReference.cache
+F:\Dev\COLLADA-CTS\_Test1\Core\SchemaValidate\SchemaValidate\obj\Debug\SchemaValidate.exe
+F:\Dev\COLLADA-CTS\_Test1\Core\SchemaValidate\SchemaValidate\obj\Debug\SchemaValidate.pdb
