@@ -45,13 +45,14 @@ class Test_Camera:
 			# ListResult.append(id)
 			
 		for eachInput in ListName:
-			ListResult.append(FColladaTest.GetElementsByTags(FColladaTest.GetRoot(), [eachInput])[0].childNodes[0].nodeValue)
+			if len(FColladaTest.GetElementsByTags(FColladaTest.GetRoot(), [eachInput])) > 0:
+				ListResult.append(FColladaTest.GetElementsByTags(FColladaTest.GetRoot(), [eachInput])[0].childNodes[0].nodeValue)
 	
 	
 		# [ListName, ListValue, ListResult] = myTestCamera.testCameraElement();
 		
 		i = 0
-		for element in ListName:
+		for element in ListResult:
 			assert ListResult[i] == ListValue[i], ListName[i]
 			i = i + 1
 			

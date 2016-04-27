@@ -6,29 +6,39 @@ import sys
 import site
 site.addsitedir(sys.path[0] + os.sep + 'Script')
 
-### Main TEST
-from FTest_Exporter import *	
-myTest = FTest_Exporter(input_filename)
-myTest.DoProcess()
+site.addsitedir(sys.path[0] + os.sep + 'Core')
+from FCommon import *
 
 
-###Coherency Test
-# from FTest_Coherency import *
-# myTest = FTest_Coherency(input_filename)
-# myTest.DoProcess()
-	
-###Validation test
-# from FTest_Validate import *	
-# myTest = FTest_Validate(input_filename)
-# myTest.DoProcess()
+for op in OPERATIONS:
 
-### Unit Test with pyTest
-# input_filename = sys.argv[1]
-# UnitTestFile = sys.argv[2]
-# xmlResult = sys.argv[3]
-# from FTest_UnitTest import *	
-# myTest = FTest_UnitTest(input_filename)
-# myTest.DoUnitTest(UnitTestFile, xmlResult)
+	###Coherency Test
+	if op == "COHERENCY_TEST":
+		from FTest_Coherency import *
+		myTest = FTest_Coherency(input_filename)
+		myTest.DoProcess()
+		
+	###Validation test
+	if op == "VALIDATE_TEST":
+		from FTest_Validate import *	
+		myTest = FTest_Validate(input_filename)
+		myTest.DoProcess()
+
+	### Main TEST
+	if op == "IMPORT_EXPORT_TEST":
+		from FTest_Exporter import *	
+		myTest = FTest_Exporter(input_filename)
+		myTest.DoProcess()
+
+	### Unit Test with pyTest	
+	if op == "UNIT_TEST":
+		input_filename = sys.argv[1]
+		unitTestDir = sys.argv[2]
+		xmlResultFile = sys.argv[3]
+
+		from FColladaTest import *	
+		myTest = FColladaTest(input_filename)
+		myTest.DoUnitTest(input_filename, unitTestDir, xmlResultFile)
 
 ###Image Comparaison Test
 # from FTest_ImgComparator import *
