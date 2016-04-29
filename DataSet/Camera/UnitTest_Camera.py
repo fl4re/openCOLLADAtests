@@ -4,6 +4,7 @@
 # myTestCamera = FTest_Camera()
 
 from FColladaTest import *
+from numpy import *
 
 ###################################################################################
 
@@ -48,12 +49,10 @@ class Test_Camera:
 			if len(FColladaTest.GetElementsByTags(FColladaTest.GetRoot(), [eachInput])) > 0:
 				ListResult.append(FColladaTest.GetElementsByTags(FColladaTest.GetRoot(), [eachInput])[0].childNodes[0].nodeValue)
 	
-	
-		# [ListName, ListValue, ListResult] = myTestCamera.testCameraElement();
-		
 		i = 0
 		for element in ListResult:
-			assert ListResult[i] == ListValue[i], ListName[i]
+			assert(isclose(float(ListResult[i]), float(ListValue[i]), atol=1e-04, rtol=0), ListName[i])
+			
 			i = i + 1
 			
 		print('\nTest_Camera:test_camera_1()')
