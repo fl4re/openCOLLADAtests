@@ -21,10 +21,6 @@ from CheckingModule import *
 from NodeInsCheck import *
 
 
-#name of the DAE to be imported
-input_filename = sys.argv[1]
-
-
 class FColladaTest:
 
 	def __init__(self, input_filename):
@@ -34,9 +30,10 @@ class FColladaTest:
 		# Read in and parse the configuration file.
 		configDict1 = {}
 		
-		# myPath = os.path.dirname(os.path.abspath(__file__))
+		myPath = os.path.dirname(os.path.abspath(__file__))
+		configDict1["directory"] = myPath + "/../"
+
 		# myPath = os.getcwd()
-		# print myPath
 		# myPath = myPath.replace("\\", "/")
 		# print myPath
 		# configDict1["directory"] = os.getcwd() 
@@ -64,6 +61,7 @@ class FColladaTest:
 		
 		#name of the maya saved from the imported DAE 
 		self.ouput_maya_file = self.configDict["directory"] + RESULT_DIR + MAYA_FILE_MA
+
 		
 		#name of the DAE to be imported
 		self.input_filename = input_filename

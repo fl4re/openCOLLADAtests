@@ -16,8 +16,8 @@ class FExporter:
 		
 		print("--DO EXPORT")	
 		print '%s = output_filename' % (output_filename + '.' + DAE_EXT)
-		
-		export = subprocess.Popen(self.configDict["mayaPath"] + ' ' + self.scriptExportPath + ' ' + self.configDict["mayaColladaPluginName"] + ' ' + input_filename + ' ' + output_filename + '.dae' + ' ' + option + ' ', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				
+		export = subprocess.Popen(self.configDict["mayaPath"] + ' ' + self.scriptExportPath + ' ' + '"' + self.configDict["mayaColladaPluginName"] + '"' + ' ' + input_filename + ' ' + output_filename + '.dae' + ' ' + option + ' ', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		out,err = export.communicate()
 		exitcode = export.returncode
 		if str(exitcode) != '0':

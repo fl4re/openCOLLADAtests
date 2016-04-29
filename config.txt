@@ -1,6 +1,5 @@
-directory					D:/Dev/OpenColladaTests/
 mayaPath					C:/Program Files/Autodesk/Maya2015/bin/mayapy.exe
 renderExe					C:/Program Files/Autodesk/Maya2015/bin/Render
-mayaColladaPluginName		D:/Dev/OpenColladaTests/Core/COLLADAMaya.mll
+mayaColladaPluginName		C:/Program Files/Autodesk/Maya2015/bin/plug-ins/COLLADAMaya.mll
 schemaValidatePath			/Core/SchemaValidate.exe
 coherencyPath				/Core/coherencytest.exe

@@ -24,7 +24,7 @@ class FImporter:
 			log = open(logFilename, "a")
 			
 	
-		importP = subprocess.Popen(self.configDict["mayaPath"] + ' ' + self.scriptImportPath + ' ' + self.configDict["mayaColladaPluginName"] + ' ' + input_filename + ' ' + output_maya_file + ' ', stdout = log, stderr=subprocess.PIPE)
+		importP = subprocess.Popen(self.configDict["mayaPath"] + ' ' + self.scriptImportPath + ' ' + '"' + self.configDict["mayaColladaPluginName"] + '"' + ' ' + input_filename + ' ' + output_maya_file + ' ', stdout = log, stderr=subprocess.PIPE)
 		out,err = importP.communicate()
 		exitcode = importP.returncode
 		
