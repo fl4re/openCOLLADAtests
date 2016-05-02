@@ -47,12 +47,18 @@ else:
 				myTest = FTest_Validate(input_filename)
 				myTest.DoProcess()
 
-		### Main TEST
-		if op == "IMPORT_EXPORT_TEST":
+		###EXPORT_IMPORT test
+		if op == "EXPORT_IMPORT_TEST":
+			from FTest_Exporter_Import import *	
+			myTest = FTest_Exporter_Import("")
+			myTest.DoProcess()
+		
+		###EXPORT test
+		if op == "EXPORT_TEST":
 			from FTest_Exporter import *	
 			myTest = FTest_Exporter("")
 			myTest.DoProcess()
-
+		
 		### Unit Test with pyTest	
 		if op == "UNIT_TEST":
 		
