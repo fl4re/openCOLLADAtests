@@ -1,3 +1,7 @@
 *.pyc
 *.cache
-
+/TestProcedure
+/Result
+OpenMayaErrorLog.txt
+/Core/SchemaValidate/SchemaValidate/bin
+/Core/SchemaValidate/SchemaValidate/obj

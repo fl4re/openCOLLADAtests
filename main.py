@@ -11,7 +11,7 @@ from FCommon import *
 
 
 if len(sys.argv) < 2:
-	print 'Please use at least one of those test : ["COHERENCY_TEST", "VALIDATE_TEST", "IMPORT_EXPORT_TEST", "UNIT_TEST"]'
+	print 'Please use at least one of those test : ["COHERENCY_TEST", "VALIDATE_TEST", "EXPORT_IMPORT_TEST", "EXPORT_ONLY_TEST", "UNIT_TEST"]'
 else:
 	OPERATION_ARG = sys.argv[1]
 
@@ -54,7 +54,7 @@ else:
 			myTest.DoProcess()
 		
 		###EXPORT test
-		if op == "EXPORT_TEST":
+		if op == "EXPORT_ONLY_TEST":
 			from FTest_Exporter import *	
 			myTest = FTest_Exporter("")
 			myTest.DoProcess()

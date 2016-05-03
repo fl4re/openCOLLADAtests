@@ -4,7 +4,7 @@ validation tests for openCOLLADA plug
 
 Python test frameworks enable you to validate openCOLLADA plug.
 Five differents tests are available to validate the openCOLLADA plugin:
-["COHERENCY_TEST", "VALIDATE_TEST", "EXPORT_IMPORT_TEST", "EXPORT_TEST", "UNIT_TEST"]
+["COHERENCY_TEST", "VALIDATE_TEST", "EXPORT_IMPORT_TEST", "EXPORT_ONLY_TEST", "UNIT_TEST"]
 
 
 			
@@ -43,7 +43,7 @@ UNIT_TEST :  python.exe main.py ["UNIT_TEST"] file.dae UnitTestDir result.xml
 	
 	
 --------------------------------------------------------------------------------------------------------------------	
-EXPORT_TEST : python.exe main.py ["EXPORT_TEST"]
+EXPORT_ONLY_TEST : python.exe main.py ["EXPORT_ONLY_TEST"]
 - .mb file are open into Maya 
 - .DAE is exported from Maya
 - .DAE is validated
