@@ -7,9 +7,22 @@ Five differents tests are available to validate the openCOLLADA plugin:
 ["COHERENCY_TEST", "VALIDATE_TEST", "EXPORT_IMPORT_TEST", "EXPORT_ONLY_TEST", "UNIT_TEST"]
 
 
+
+*************						
+INSTALLATION:
+*************
+
+1/ Launch get-pip.py in /Core folder
+2/ add pip to your PATH (PATH = C:\Python27\Scripts)
+3/ execute in dos: pip install -U pytest   (this will install pytest unitTest framework)
+4/ Download numpy-1.11.0-cp27-none-win32.whl or numpy-1.11.0-cp27-none-win_amd64.whl from https://pypi.python.org/pypi/numpy
+5/ Copy this file into C:\Python27\Scripts
+6/ execute dos command: pip install numpy-1.11.0-cp27-none-win32.whl
+
+
 			
 ******************						
-HOW TO USE TESTS:*
+HOW TO USE TESTS:
 ******************
 
 1/ You need to locate your maya folder in Config.txt file 
@@ -21,24 +34,24 @@ HOW TO USE TESTS:*
 
 --------------------------------------------------------------------------------------------------------------------
 COHERENCY_TEST : python.exe main.py ["COHERENCY_TEST"] file.dae
-- Coherency test is launched with the .dae provided
-- result from the coherency test are written in "error_log.txt" in Result folder
+Coherency test is launched with the .dae provided
+result from the coherency test are written in "error_log.txt" in Result folder
 --------------------------------------------------------------------------------------------------------------------
 
 
 --------------------------------------------------------------------------------------------------------------------
 VALIDATE_TEST : python.exe main.py ["VALIDATE_TEST"] file.dae
-- Validation test is launched with the .dae provided
-- Result from the validate test are written in "validation.log" in Result folder
+Validation test is launched with the .dae provided
+Result from the validate test are written in "validation.log" in Result folder
 --------------------------------------------------------------------------------------------------------------------
 
 
 --------------------------------------------------------------------------------------------------------------------
 UNIT_TEST :  python.exe main.py ["UNIT_TEST"] file.dae UnitTestDir result.xml
 - you need to provide 3 arguments for unit test
-	* DAE file you want the unit test to be executed on
-	* UnitTestDir is the folder with all unit test you want to be executed
-	* result.xml is xml file where results are written
+	- DAE file you want the unit test to be executed on
+	- UnitTestDir is the folder with all unit test you want to be executed
+	- result.xml is xml file where results are written
 --------------------------------------------------------------------------------------------------------------------
 	
 	
@@ -48,7 +61,7 @@ EXPORT_ONLY_TEST : python.exe main.py ["EXPORT_ONLY_TEST"]
 - .DAE is exported from Maya
 - .DAE is validated
 - All unit test inside DataSet folder are launched, 
-	* results from unitTest are written in TestProcedure folder with the same hierarchy from DataSet folder
+	results from unitTest are written in TestProcedure folder with the same hierarchy from DataSet folder
 --------------------------------------------------------------------------------------------------------------------
 	
 	
@@ -58,19 +71,19 @@ IMPORT_EXPORT_TEST : python.exe main.py ["IMPORT_EXPORT_TEST"]
 - .DAE is exported from Maya
 - .DAE is validated
 - All unit test inside DataSet folder are launched, 
-	* results from unitTest are written in TestProcedure folder with the same hierarchy from DataSet folder
+	results from unitTest are written in TestProcedure folder with the same hierarchy from DataSet folder
 - DAE is imported into Maya
 - DAE is exported from Maya
 - .DAE is validated
 - All unit test inside DataSet folder are launched, 
-	* results from unitTest are written in TestProcedure folder with the same hierarchy from DataSet folder
+	results from unitTest are written in TestProcedure folder with the same hierarchy from DataSet folder
 --------------------------------------------------------------------------------------------------------------------
 
 
 
 
 *************************
-HOW TO CREATE UNIT TEST:*
+HOW TO CREATE UNIT TEST:
 *************************
 
 
