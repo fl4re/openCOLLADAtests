@@ -30,8 +30,8 @@ class FImageComparator:
 		filename1 = os.path.normpath(os.path.abspath(input_filename))
 		filename2 = os.path.normpath(os.path.abspath(input_filename2))
 				
-		if (os.path.isfile(filename1)):
-			if (os.path.isfile(filename2)):
+		if os.path.isfile(filename1):
+			if os.path.isfile(filename2):
 				# return compareResult
 		# else:
 			# if (os.path.isfile(filename2)):
@@ -47,8 +47,8 @@ class FImageComparator:
 				block1 = f1.read(10240) # 10 KB
 				block2 = f2.read(10240) # 10 KB
 				
-				while (block1 == block2):
-					if ((len(block1) == 0) and (len(block2) == 0)):
+				while block1 == block2:
+					if (len(block1) == 0) and (len(block2) == 0):
 						f1.close()
 						f2.close()
 						compareResult.SetResult(True)

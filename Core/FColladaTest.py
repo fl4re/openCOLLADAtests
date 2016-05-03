@@ -38,14 +38,14 @@ class FColladaTest:
 		# print myPath
 		# configDict1["directory"] = os.getcwd() 
 		
-		if (os.path.isfile(CONFIGURATION_FILE)):
+		if os.path.isfile(CONFIGURATION_FILE):
 			f = open(CONFIGURATION_FILE)
 			line = f.readline()
-			while (line):
-				while (line.count("\t\t") > 0):
+			while line:
+				while line.count("\t\t") > 0:
 					line = line.replace("\t\t", "\t")
 				key, value = line.split("\t",1)
-				if (configDict1.has_key(key)):
+				if configDict1.has_key(key):
 					print ("Warning: Ignoring redefinition of configuration " +
 						   "key: " + key + ".")
 					continue
@@ -53,7 +53,7 @@ class FColladaTest:
 				# print("key" + key + ";value  " + value.strip())	
 				configDict1[key] = value.strip() # remove \n
 				line = f.readline()
-			f.close
+				f.close
 		
 		
 		

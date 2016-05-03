@@ -15,7 +15,7 @@ class FRenderer:
 		
 		print('DO RENDER')
 		
-		if (self.logFilename == None):
+		if self.logFilename is None:
 			log = None
 		else:
 			log = open(self.logFilename, "a")
@@ -28,7 +28,7 @@ class FRenderer:
 		exitcode = export.returncode
 		if str(exitcode) != '0':
 			print(err)
-			print 'error rendering: %s' % (input_filename)
+			print 'error rendering: %s' % input_filename
 		else:
-			print '%s rendered' % (input_filename)
+			print '%s rendered' % input_filename
 

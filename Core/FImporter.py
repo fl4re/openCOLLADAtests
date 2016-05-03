@@ -15,10 +15,10 @@ class FImporter:
 	def DoImport(self, input_filename, output_maya_file):
 
 		print("--DO IMPORT")	
-		print '%s = output_maya_file' % (output_maya_file)
+		print '%s = output_maya_file' % output_maya_file
 	
 		self.logFilename = None
-		if (self.logFilename == None):
+		if self.logFilename is None:
 			log = None
 		else:
 			log = open(logFilename, "a")
@@ -30,6 +30,6 @@ class FImporter:
 		
 		if str(exitcode) != '0':
 			print(err)
-			print 'error importing: %s' % (input_filename)
+			print 'error importing: %s' % input_filename
 		else:
-			print '%s imported' % (input_filename)
+			print '%s imported' % input_filename

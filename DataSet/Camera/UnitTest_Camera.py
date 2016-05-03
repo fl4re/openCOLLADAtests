@@ -10,27 +10,27 @@ from numpy import *
 
 
 def resource_a_setup():
-    print('resources_a_setup()')
+	print('resources_a_setup()')
  
 def resource_a_teardown():
-    print('resources_a_teardown()')
+	print('resources_a_teardown()')
 
 	
 class Test_Camera:
  
-    @classmethod 
-    def setup_class(cls):
-        # print ('\nsetup_class()')
-        resource_a_setup()
+	@classmethod
+	def setup_class(cls):
+		# print ('\nsetup_class()')
+		resource_a_setup()
  
-    @classmethod 
-    def teardown_class(cls):
-        # print ('\nteardown_class()')
-        resource_a_teardown()
+	@classmethod
+	def teardown_class(cls):
+		# print ('\nteardown_class()')
+		resource_a_teardown()
 		
 		
 		
-    def test_camera_1(self):
+	def test_camera_1(self):
 
 		ListResult = []
 		
@@ -40,7 +40,7 @@ class Test_Camera:
 		xmlNode = FColladaTest.GetElementByID(FColladaTest.GetRoot(), '_camera1_cameraShape1')
 		
 		
-		if xmlNode != None:
+		if xmlNode is not None:
 			# tag = xmlNode.nodeName
 			id = xmlNode.attributes['name'].value
 			# ListResult.append(id)
@@ -52,7 +52,7 @@ class Test_Camera:
 		i = 0
 		for element in ListResult:
 			assert(isclose(float(ListResult[i]), float(ListValue[i]), atol=1e-04, rtol=0), ListName[i])
-			
-			i = i + 1
+
+			i += 1
 			
 		print('\nTest_Camera:test_camera_1()')

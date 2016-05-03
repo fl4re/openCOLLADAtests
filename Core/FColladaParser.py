@@ -41,7 +41,7 @@ class FColladaParser:
 	
 		# print("INIT FColladaParser")
 		self._files_lst = [input_filename, input_filename]
-		
+
 		self.inputFile = self._files_lst[0]
 		self.outputFiles = [self._files_lst[1]]
 		
@@ -55,7 +55,7 @@ class FColladaParser:
 			print info
 			return 0
 		
-		print '%s DOM parsed' % (self.inputFile)
+		print '%s DOM parsed' % self.inputFile
 		
 		FColladaParser.__root = self.testIO.GetRoot(self.inputFile)
 

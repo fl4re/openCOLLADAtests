@@ -11,10 +11,10 @@ from xml.dom.minidom import parse, parseString
 
 
 def resource_a_setup():
-    print('resources_a_setup()')
+	print('resources_a_setup()')
  
 def resource_a_teardown():
-    print('resources_a_teardown()')
+	print('resources_a_teardown()')
 
 def checkMatrixValue(matrix, ListValue):
 
@@ -23,24 +23,24 @@ def checkMatrixValue(matrix, ListValue):
 	i = 0
 	for element in resParse2[1]:
 		assert(isclose(float(element), float(ListValue[i]), atol=1e-04, rtol=0))
-		i = i + 1
+		i += 1
 	
 	
 	
 	
 class Test_Lod:
  
-    @classmethod 
-    def setup_class(cls):
-        # print ('\nsetup_class()')
-        resource_a_setup()
+	@classmethod
+	def setup_class(cls):
+		# print ('\nsetup_class()')
+		resource_a_setup()
  
-    @classmethod 
-    def teardown_class(cls):
-        # print ('\nteardown_class()')
-        resource_a_teardown()
+	@classmethod
+	def teardown_class(cls):
+		# print ('\nteardown_class()')
+		resource_a_teardown()
 		
-    def test_lod_1(self):
+	def test_lod_1(self):
 		
 		########
 		tagNodeLst = ['library_nodes', 'node']
@@ -108,7 +108,7 @@ class Test_Lod:
 		######## 
 		tagNodeLst = ['library_visual_scenes', 'visual_scene', 'instance_node']
 		xmlNode = FColladaTest.GetElementsByTags(FColladaTest.GetRoot(), tagNodeLst)
-		instance_node = xmlNode[0];
+		instance_node = xmlNode[0]
 		assert(GetAttriByEle(instance_node, 'url') == '#_lodGroup1_pCylinder1_LOD2')
 		
 		tagInputLst = ['proxy']  

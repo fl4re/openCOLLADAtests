@@ -21,7 +21,7 @@ class FValidator:
 		print('--DO VALIDATE')
 		
 		self.logFilename = None
-		if (self.logFilename == None):
+		if self.logFilename is None:
 			log = None
 		else:
 			log = open(logFilename, "a")
@@ -37,6 +37,6 @@ class FValidator:
 		
 		if str(exitcode) != '0':
 			print(err)
-			print 'error validating: %s' % (output_filename)
+			print 'error validating: %s' % output_filename
 		else:
-			print '%s validated' % (output_filename)
+			print '%s validated' % output_filename

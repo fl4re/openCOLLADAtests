@@ -43,7 +43,7 @@ class FTest_Exporter (FColladaTest):
 					spath=path+'/'+each  
 					if os.path.isfile(spath):   
 						# file type must be exactly matched
-						if spath.endswith(ext)  == True:												
+						if spath.endswith(ext):
 							self._mayaFilesList.append(spath) 
 					self.RetrieveFiles(spath, ext)
 		# print self._mayaFilesList
@@ -70,15 +70,15 @@ class FTest_Exporter (FColladaTest):
 			## retrieve UnitTest according to .ma selected
 			temp = self._mayaFilesList[index].replace(DATA_SET, TEST_PROCEDURE)
 			self.output_filename = temp[0:temp.rfind(".")]
+
+			directory =  temp[0:temp.rfind("/")]
 			
-			dir =  temp[0:temp.rfind("/")]
 			
-			
-			if not os.path.exists(dir):
-				os.makedirs(dir)
+			if not os.path.exists(directory):
+				os.makedirs(directory)
 			
 			unitTestDir = self._mayaFilesList[index][0:self._mayaFilesList[index].rfind("/")+1]
-			index = index + 1
+			index += 1
 			
 			
 			
@@ -93,12 +93,11 @@ class FTest_Exporter (FColladaTest):
 			# print ('>>>>> MAYA FILE LOADED >>>>>>>>>>>>>>>>>>' + maya_file)
 			# print ('>>>>> DAE FILE EXPORTED >>>>>>>>>>>>>>>>>>' + self.output_filename + '.' + DAE_EXT)
 				
-			logFile = dir + '/validation' + '.' + LOG_EXT
+			logFile = directory + '/validation' + '.' + LOG_EXT
 			output_filename = self.output_filename + '.' + DAE_EXT
 			self.DoValidate(output_filename, logFile)
 
 			# UNIT TEST
-			self.DoUnitTest(output_filename, unitTestDir, dir + '/unitTest.' + XML_EXT)
+			self.DoUnitTest(output_filename, unitTestDir, directory + '/unitTest.' + XML_EXT)
 			# print ('>>>>> FOLDER USED FOR UNIT TEST >>>>>>>>>>>>>>>>>>' + unitTestDir)
 			# print ('>>>>> DAE FILE USED FOR UNIT TEST >>>>>>>>>>>>>>>>>>' + output_filename)
-			

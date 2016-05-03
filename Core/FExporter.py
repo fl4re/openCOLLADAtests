@@ -22,6 +22,6 @@ class FExporter:
 		exitcode = export.returncode
 		if str(exitcode) != '0':
 			print(err)
-			print 'error exporting: %s' % (input_filename)
+			print 'error exporting: %s' % input_filename
 		else:
-			print '%s exported' % (input_filename) 
+			print '%s exported' % input_filename

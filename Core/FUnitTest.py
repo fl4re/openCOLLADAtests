@@ -14,8 +14,8 @@ class FUnitTest:
 
 		print("--DO UNIT_TEST")	
 		
-		print '%s = unitTestDir' % (unitTestDir)
-		print '%s = xmlResultFile' % (xmlResultFile)
+		print '%s = unitTestDir' % unitTestDir
+		print '%s = xmlResultFile' % xmlResultFile
 		
 		pytest.main( unitTestDir + ' ' + "-s --junitxml=" + xmlResultFile)
 		# invoque py.test with -v(verbose) option and --junitxml=titi2.xml(creating JUnitXML files)
