@@ -1,28 +1,21 @@
 import os
-import sys
-import site
 
-site.addsitedir(sys.path[0] + os.sep + 'Core')
+from Core.FCommon import *
+from Core.FColladaTest import FColladaTest
 
 
-from FColladaTest import *
+class FTest_Validate(FColladaTest):
+    def __init__(self, input_filename):
+        # print("INIT FTest_Validate")
+        FColladaTest.__init__(self, input_filename)
 
-class FTest_Validate (FColladaTest):
+    def DoProcess(self):
+        # print("--DO PROCESS FTest_Validate")
+        FColladaTest.DoProcess(self)
 
-	def __init__(self, input_filename):
-	
-		# print("INIT FTest_Validate")
-		FColladaTest.__init__(self, input_filename)
-	
+        if not os.path.exists(self.configDict["directory"] + RESULT_DIR):
+            os.makedirs(self.configDict["directory"] + RESULT_DIR)
 
-	def DoProcess(self):
-
-		# print("--DO PROCESS FTest_Validate")	
-		FColladaTest.DoProcess(self)
-		
-		if not os.path.exists(self.configDict["directory"] + RESULT_DIR):
-			os.makedirs(self.configDict["directory"] + RESULT_DIR)
-		
-		#validate
-		logFile = self.configDict["directory"] + RESULT_DIR + 'validation' + '.log'
-		self.DoValidate(self.input_filename, logFile)
+        # validate
+        logFile = self.configDict["directory"] + RESULT_DIR + 'validation' + '.log'
+        self.DoValidate(self.input_filename, logFile)
