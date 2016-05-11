@@ -1,6 +1,5 @@
 import os
 import sys
-import site
 
 from subprocess import call
 

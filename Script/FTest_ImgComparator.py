@@ -1,5 +1,4 @@
 import os
-import sys
 
 from Core.FCommon import *
 from Core.FColladaTest import FColladaTest

@@ -104,12 +104,12 @@ class FTest_Exporter_Import(FColladaTest):
                 # print ('>>>>> MAYA FILE LOADED >>>>>>>>>>>>>>>>>>' + self.ouput_maya_file)
                 # print ('>>>>> DAE FILE EXPORTED >>>>>>>>>>>>>>>>>>' + name)
 
-                logFile = dir + '/validation' + str(i) + '.' + LOG_EXT
+                logFile = directory + '/validation' + str(i) + '.' + LOG_EXT
                 output_filename = self.output_filename + str(i) + '.' + DAE_EXT + ' '
                 self.DoValidate(output_filename, logFile)
 
                 # UNIT TEST
-                self.DoUnitTest(output_filename, unitTestDir, dir + '/unitTest' + str(i) + '.' + XML_EXT)
+                self.DoUnitTest(output_filename, unitTestDir, directory + '/unitTest' + str(i) + '.' + XML_EXT)
                 # print ('>>>>> FOLDER USED FOR UNIT TEST >>>>>>>>>>>>>>>>>>' + unitTestDir)
                 # print ('>>>>> DAE FILE USED FOR UNIT TEST >>>>>>>>>>>>>>>>>>' + output_filename)
 

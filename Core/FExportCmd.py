@@ -1,7 +1,7 @@
 import sys
 import maya.standalone as std
-std.initialize(name='python')
 import maya.cmds as cmds
+std.initialize(name='python')
 
 plugin_name = sys.argv[1]
 input_filename = sys.argv[2]
