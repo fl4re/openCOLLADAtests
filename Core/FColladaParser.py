@@ -1,4 +1,4 @@
-from Core.Common.NodeInsCheck import *
+from Core.Common.DOMParser import *
 
 
 class FColladaParser:
