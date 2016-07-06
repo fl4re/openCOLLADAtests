@@ -25,9 +25,9 @@ Manual installation steps if not using Anaconda:
 # How to launch tests:
 
   1. First you need to locate your maya folder in Config.txt file
-  2. You can then launch tests with the following command:
+  2. You can then launch tests by executing launch.bat
 
-python main.py Options Arguments
+If needed you can run tests individually:
 
 ### Coherency test
 
