@@ -1,7 +1,7 @@
 # openCOLLADAtests
 Validation tests for openCOLLADA plugin.
 
-Python test frameworks which enables you to validate openCOLLADA plugin. Five differents tests are available to validate the openCOLLADA plugin:
+Python test framework which allows you to validate openCOLLADA Maya plugin. Five differents tests are available to validate the openCOLLADA plugin:
 
 - Validation
 - Coherency
