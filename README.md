@@ -1,16 +1,19 @@
 # openCOLLADAtests
-validation tests for openCOLLADA plug
+Validation tests for openCOLLADA plugin.
 
+Python test frameworks which enables you to validate openCOLLADA plugin. Five differents tests are available to validate the openCOLLADA plugin:
 
-Python test frameworks enable you to validate openCOLLADA plug.
-Five differents tests are available to validate the openCOLLADA plugin:
-["COHERENCY_TEST", "VALIDATE_TEST", "EXPORT_IMPORT_TEST", "EXPORT_ONLY_TEST", "UNIT_TEST"]
+- Validation
+- Coherency
+- Export/Import
+- Export only
+- Unit tests
 
+# Installation:
 
+This test framework requires "pytest" and "numpy" to be installed. You can either install Anaconda 2 (https://www.continuum.io/downloads) which already include those packages or install them manually.
 
-					
-# INSTALLATION:
-
+Manual installation steps if not using Anaconda:
 
   1. Launch get-pip.py in /Core folder
   2. add pip to your PATH (PATH = C:\Python27\Scripts)
@@ -19,68 +22,55 @@ Five differents tests are available to validate the openCOLLADA plugin:
   5. Copy this file into C:\Python27\Scripts
   6. execute dos command: pip install numpy-1.11.0-cp27-none-win32.whl
 
+# How to launch tests:
 
-			
-						
-# HOW TO USE TESTS:
+  1. First you need to locate your maya folder in Config.txt file
+  2. You can then launch tests with the following command:
 
+python main.py Options Arguments
 
-  1. You need to locate your maya folder in Config.txt file 
+### Coherency test
 
-  2. You can use one or more tests to validate your plugin
-	python.exe main.py ["TEST_1", "TEST_2", ...] Arguments
+python main.py --coherency-test file.dae
 
+Coherency test is launched against provided .dae. Result from the coherency test are written in "error_log.txt" in Result folder.
 
+### Validation test
 
-### COHERENCY_TEST
-python.exe main.py ["COHERENCY_TEST"] file.dae
-Coherency test is launched with the .dae provided
-result from the coherency test are written in "error_log.txt" in Result folder
+python main.py --validation-test file.dae
 
+Validation test is launched against provided .dae. Result from the validation test are written in "validation.log" in Result folder.
 
-### VALIDATE_TEST
-python.exe main.py ["VALIDATE_TEST"] file.dae
-Validation test is launched with the .dae provided
-Result from the validate test are written in "validation.log" in Result folder
+### Unit tests
 
+python main.py --unit-test file.dae path_to_unit_test_dir result.xml
 
-
-### UNIT_TEST
-python.exe main.py ["UNIT_TEST"] file.dae UnitTestDir result.xml
- - you need to provide 3 arguments for unit test
+You need to provide 3 arguments for unit testing:
 	- DAE file you want the unit test to be executed on
-	- UnitTestDir is the folder with all unit test you want to be executed
-	- result.xml is xml file where results are written
-
+	- path_to_unit_test_dir is the folder with all unit test you want to be executed
+	- result.xml is an xml file where results are written (JUnit format)
 	
-		
-### EXPORT_ONLY_TEST
-python.exe main.py ["EXPORT_ONLY_TEST"]
- - .mb file are open into Maya 
+### Export only test
+
+python.exe main.py --export-test
+ - .mb file are opened into Maya 
  - .DAE is exported from Maya
  - .DAE is validated
- - All unit test inside DataSet folder are launched, 
-	results from unitTest are written in TestProcedure folder with the same hierarchy from DataSet folder
+ - All unit tests inside DataSet folder are launched. Results from unitTest are written in TestProcedure folder with the same hierarchy from DataSet folder.
 
-
-### IMPORT_EXPORT_TEST	
-python.exe main.py ["IMPORT_EXPORT_TEST"]
- - .mb file are open into Maya 
+### Export/Import test
+	
+python.exe main.py --export-import-test
+ - .mb file are opened into Maya 
  - .DAE is exported from Maya
  - .DAE is validated
- - All unit test inside DataSet folder are launched, 
-	results from unitTest are written in TestProcedure folder with the same hierarchy from DataSet folder
- - DAE is imported into Maya
- - DAE is exported from Maya
+ - All unit tests inside DataSet folder are launched. Results from unitTest are written in TestProcedure folder with the same hierarchy from DataSet folder.
+ - .DAE is imported into Maya
+ - .DAE is exported from Maya
  - .DAE is validated
- - All unit test inside DataSet folder are launched, 
-	results from unitTest are written in TestProcedure folder with the same hierarchy from DataSet folder
+ - All unit tests inside DataSet folder are launched. Results from unitTest are written in TestProcedure folder with the same hierarchy from DataSet folder
 
-
-
-
-# HOW TO CREATE UNIT TEST:
-
+# How to create unit tests:
 
   0. You need to provide a .mb file and a unitTest python file in a specified folder into DataSet folder
 
