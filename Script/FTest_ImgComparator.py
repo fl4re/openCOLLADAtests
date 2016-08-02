@@ -11,9 +11,9 @@ class FTest_ImgComparator(FColladaTest):
 
     def DoProcess(self, input_filename, input_filename2):
         # print("--DO PROCESS FTest_ImgComparator")
-        FColladaTest.DoProcess(self)
+        error = FColladaTest.DoProcess(self)
 
         if not os.path.exists(self.configDict["directory"] + RESULT_DIR):
             os.makedirs(self.configDict["directory"] + RESULT_DIR)
 
-        return self.imageComparator.CompareImages(input_filename, input_filename2)
+        return error | self.imageComparator.CompareImages(input_filename, input_filename2) is False

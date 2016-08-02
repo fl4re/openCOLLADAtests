@@ -77,27 +77,28 @@ class FColladaTest:
 
 
     def DoCoherencyTest(self, inputfile, logFile):
-        self.coherencyTest.DoCoherencyTest(inputfile, logFile)
+        return self.coherencyTest.DoCoherencyTest(inputfile, logFile)
 
     def DoRender(self, input_filename):
-        self.renderer.DoRender(input_filename)
+        return self.renderer.DoRender(input_filename)
 
     def DoImport(self, input_filename, output_maya_file):
-        self.importer.DoImport(input_filename, output_maya_file)
+        return self.importer.DoImport(input_filename, output_maya_file)
 
     def DoExport(self, Maya_filename, DAE_filename, option):
-        self.exporter.DoExport(Maya_filename, DAE_filename, option)
+        return self.exporter.DoExport(Maya_filename, DAE_filename, option)
 
     # UnitTest
     def DoUnitTest(self, DAE_filename, unitTestDir, xmlResultFile):
         self.colladaParser.ParseDOM(DAE_filename)
-        self.unitTest.DoUnitTest(unitTestDir, xmlResultFile)
+        return self.unitTest.DoUnitTest(unitTestDir, xmlResultFile)
 
     def DoValidate(self, output_filename, logName):
-        self.validator.DoValidate(output_filename, logName)
+        return self.validator.DoValidate(output_filename, logName)
 
     def DoProcess(self):
 
         print("--DO PROCESS FColladaTest")
         if not os.path.exists(self.configDict["directory"] + RESULT_DIR):
             os.makedirs(self.configDict["directory"] + RESULT_DIR)
+        return 0

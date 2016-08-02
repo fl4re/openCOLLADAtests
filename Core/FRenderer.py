@@ -35,3 +35,5 @@ class FRenderer:
             print 'error rendering: %s' % input_filename
         else:
             print '%s rendered' % input_filename
+
+        return exitcode

@@ -1,6 +1,7 @@
 import sys
 import os
 import time
+import Core.Common.Util as Util
 
 
 class FCoherencyTest:
@@ -28,12 +29,10 @@ class FCoherencyTest:
 
 	def doublecheck(self, x, in_settings):
 
-		# Change working directory to the COLLADA file's path
-		os.chdir(os.path.dirname(x))
+		# Change working directory to the COLLADA file's path and
 		# Run coherency test on it
-		os.popen("\"" + self.coherency_path + "\"" + os.path.basename(x) + "\"" + in_settings + "\"")
-		# Change back the working directory
-		os.chdir(self.prev_cwd)
+		error = Util.run(self.coherency_path + os.path.basename(x) + in_settings, os.path.dirname(x))
+		return error
 
 	def DoCoherencyTest(self, input_filename, logName):
 
@@ -46,10 +45,7 @@ class FCoherencyTest:
 		if not os.path.exists(self.coherency_path):
 			print "Error: Cannot find Coherency Test at config.txt's listed path:\n"
 			print self.coherency_path
-			time.sleep(3)
-			print "\nQuitting script..."
-			time.sleep(1)
-			sys.exit()
+			return 1
 
 		# Extract the test settings
 		settings = ""
@@ -81,10 +77,14 @@ class FCoherencyTest:
 		settings = settings + " -log \"" + os.path.abspath(logName) + "\""
 		self.prev_cwd = os.getcwd()
 
+		error = 0
+
 		# Run coherency test
 		for x in input_filename:
-			self.doublecheck(x, settings)
+			error |= self.doublecheck(x, settings)
 
 		print
 		print "----------------------------------------------------------"
 		print "Doublecheck script completed!"
+
+		return error
