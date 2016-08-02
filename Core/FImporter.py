@@ -33,3 +33,5 @@ class FImporter:
             print 'error importing: %s' % input_filename
         else:
             print '%s imported' % input_filename
+
+        return exitcode

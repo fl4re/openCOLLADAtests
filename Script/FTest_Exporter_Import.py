@@ -45,7 +45,7 @@ class FTest_Exporter_Import(FColladaTest):
     def DoProcess(self):
 
         # print("--DO PROCESS FTest_Exporter_Import")
-        FColladaTest.DoProcess(self)
+        error = FColladaTest.DoProcess(self)
 
         if not os.path.exists(self.configDict["directory"] + RESULT_DIR):
             os.makedirs(self.configDict["directory"] + RESULT_DIR)
@@ -74,16 +74,16 @@ class FTest_Exporter_Import(FColladaTest):
             ########################
 
             # LOAD MAYA FILE / EXPORT / VALIDATE
-            self.DoExport(maya_file, self.output_filename, self.options)
+            error |= self.DoExport(maya_file, self.output_filename, self.options)
             # print ('>>>>> MAYA FILE LOADED >>>>>>>>>>>>>>>>>>' + maya_file)
             # print ('>>>>> DAE FILE EXPORTED >>>>>>>>>>>>>>>>>>' + self.output_filename + '.' + DAE_EXT)
 
             logFile = directory + '/validation' + '.' + LOG_EXT
             output_filename = self.output_filename + '.' + DAE_EXT
-            self.DoValidate(output_filename, logFile)
+            error |= self.DoValidate(output_filename, logFile)
 
             # UNIT TEST
-            self.DoUnitTest(output_filename, unitTestDir, directory + '/unitTest.' + XML_EXT)
+            error |= self.DoUnitTest(output_filename, unitTestDir, directory + '/unitTest.' + XML_EXT)
             # print ('>>>>> FOLDER USED FOR UNIT TEST >>>>>>>>>>>>>>>>>>' + unitTestDir)
             # print ('>>>>> DAE FILE USED FOR UNIT TEST >>>>>>>>>>>>>>>>>>' + output_filename)
 
@@ -92,7 +92,7 @@ class FTest_Exporter_Import(FColladaTest):
             ########################
 
             # IMPORT
-            self.DoImport(self.output_filename + '.' + DAE_EXT, self.ouput_maya_file)
+            error |= self.DoImport(self.output_filename + '.' + DAE_EXT, self.ouput_maya_file)
             # print ('>>>>> DAE FILE IMPORTED >>>>>>>>>>>>>>>>>>' + self.output_filename + '.' + DAE_EXT)
 
             # LOAD MAYA FILE / EXPORT / VALIDATE
@@ -106,11 +106,13 @@ class FTest_Exporter_Import(FColladaTest):
 
                 logFile = directory + '/validation' + str(i) + '.' + LOG_EXT
                 output_filename = self.output_filename + str(i) + '.' + DAE_EXT + ' '
-                self.DoValidate(output_filename, logFile)
+                error |= self.DoValidate(output_filename, logFile)
 
                 # UNIT TEST
-                self.DoUnitTest(output_filename, unitTestDir, directory + '/unitTest' + str(i) + '.' + XML_EXT)
+                error |= self.DoUnitTest(output_filename, unitTestDir, directory + '/unitTest' + str(i) + '.' + XML_EXT)
                 # print ('>>>>> FOLDER USED FOR UNIT TEST >>>>>>>>>>>>>>>>>>' + unitTestDir)
                 # print ('>>>>> DAE FILE USED FOR UNIT TEST >>>>>>>>>>>>>>>>>>' + output_filename)
 
                 i += 1
+
+        return error

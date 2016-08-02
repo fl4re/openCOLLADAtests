@@ -10,5 +10,6 @@ class FTest_UnitTest(FColladaTest):
 
     def DoUnitTest(self, unitTestDir, xmlResultFile):
         # print("--DO PROCESS FTest_UnitTest")
-        FColladaTest.DoProcess(self)
-        FColladaTest.DoUnitTest(self, self.input_filename, unitTestDir, xmlResultFile)
+        error = FColladaTest.DoProcess(self)
+        error |= FColladaTest.DoUnitTest(self, self.input_filename, unitTestDir, xmlResultFile)
+        return error

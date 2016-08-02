@@ -27,3 +27,5 @@ class FExporter:
             print 'error exporting: %s' % input_filename
         else:
             print '%s exported' % input_filename
+
+        return exitcode

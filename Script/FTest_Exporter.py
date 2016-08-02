@@ -44,7 +44,7 @@ class FTest_Exporter(FColladaTest):
     def DoProcess(self):
 
         # print("--DO PROCESS FTest_Exporter")
-        FColladaTest.DoProcess(self)
+        error = FColladaTest.DoProcess(self)
 
         if not os.path.exists(self.configDict["directory"] + RESULT_DIR):
             os.makedirs(self.configDict["directory"] + RESULT_DIR)
@@ -73,15 +73,16 @@ class FTest_Exporter(FColladaTest):
             ########################
 
             # LOAD MAYA FILE / EXPORT / VALIDATE
-            self.DoExport(maya_file, self.output_filename, self.options)
+            error |= self.DoExport(maya_file, self.output_filename, self.options)
             # print ('>>>>> MAYA FILE LOADED >>>>>>>>>>>>>>>>>>' + maya_file)
             # print ('>>>>> DAE FILE EXPORTED >>>>>>>>>>>>>>>>>>' + self.output_filename + '.' + DAE_EXT)
 
             logFile = directory + '/validation' + '.' + LOG_EXT
             output_filename = self.output_filename + '.' + DAE_EXT
-            self.DoValidate(output_filename, logFile)
+            error |= self.DoValidate(output_filename, logFile)
 
             # UNIT TEST
-            self.DoUnitTest(output_filename, unitTestDir, directory + '/unitTest.' + XML_EXT)
+            error |= self.DoUnitTest(output_filename, unitTestDir, directory + '/unitTest.' + XML_EXT)
         # print ('>>>>> FOLDER USED FOR UNIT TEST >>>>>>>>>>>>>>>>>>' + unitTestDir)
         # print ('>>>>> DAE FILE USED FOR UNIT TEST >>>>>>>>>>>>>>>>>>' + output_filename)
+        return error

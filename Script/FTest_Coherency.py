@@ -10,7 +10,7 @@ class FTest_Coherency(FColladaTest):
 
     def DoProcess(self):
         # print("--DO PROCESS FTest_Coherency")
-        FColladaTest.DoProcess(self)
+        error = FColladaTest.DoProcess(self)
 
         if not os.path.exists(self.configDict["directory"] + RESULT_DIR):
             os.makedirs(self.configDict["directory"] + RESULT_DIR)
@@ -19,4 +19,5 @@ class FTest_Coherency(FColladaTest):
         logFile = os.path.normcase(self.configDict["directory"] + RESULT_DIR + r"error_log.txt")
 
         inputfile = [self.input_filename]
-        self.DoCoherencyTest(inputfile, logFile)
+        error |= self.DoCoherencyTest(inputfile, logFile)
+        return error

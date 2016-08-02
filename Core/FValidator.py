@@ -37,3 +37,5 @@ class FValidator:
             print 'error validating: %s' % output_filename
         else:
             print '%s validated' % output_filename
+
+        return exitcode
