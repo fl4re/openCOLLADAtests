@@ -33,7 +33,7 @@ class FTest_Exporter(FColladaTest):
             lst = os.listdir(path)
             if lst:
                 for each in lst:
-                    spath = path + '/' + each
+                    spath = path + os.path.sep + each
                     if os.path.isfile(spath):
                         # file type must be exactly matched
                         if spath.endswith(ext):
@@ -46,11 +46,11 @@ class FTest_Exporter(FColladaTest):
         # print("--DO PROCESS FTest_Exporter")
         error = FColladaTest.DoProcess(self)
 
-        if not os.path.exists(self.configDict["directory"] + RESULT_DIR):
-            os.makedirs(self.configDict["directory"] + RESULT_DIR)
+        if not os.path.exists(os.path.join(self.config["opencolladatests_path"], RESULT_DIR)):
+            os.makedirs(os.path.join(self.config["opencolladatests_path"], RESULT_DIR))
 
         # retrieve all directory with .ma in DATASET
-        self.RetrieveFiles(self.configDict["directory"] + DATA_SET)
+        self.RetrieveFiles(os.path.join(self.config["opencolladatests_path"], DATA_SET))
 
         index = 0
 
@@ -60,12 +60,12 @@ class FTest_Exporter(FColladaTest):
             temp = self._mayaFilesList[index].replace(DATA_SET, TEST_PROCEDURE)
             self.output_filename = temp[0:temp.rfind(".")]
 
-            directory = temp[0:temp.rfind("/")]
+            directory = temp[0:temp.rfind(os.path.sep)]
 
             if not os.path.exists(directory):
                 os.makedirs(directory)
 
-            unitTestDir = self._mayaFilesList[index][0:self._mayaFilesList[index].rfind("/") + 1]
+            unitTestDir = self._mayaFilesList[index][0:self._mayaFilesList[index].rfind(os.path.sep) + 1]
             index += 1
 
             ########################
@@ -77,12 +77,13 @@ class FTest_Exporter(FColladaTest):
             # print ('>>>>> MAYA FILE LOADED >>>>>>>>>>>>>>>>>>' + maya_file)
             # print ('>>>>> DAE FILE EXPORTED >>>>>>>>>>>>>>>>>>' + self.output_filename + '.' + DAE_EXT)
 
-            logFile = directory + '/validation' + '.' + LOG_EXT
+            logFile = os.path.join(directory, 'validation' + '.' + LOG_EXT)
             output_filename = self.output_filename + '.' + DAE_EXT
             error |= self.DoValidate(output_filename, logFile)
 
             # UNIT TEST
-            error |= self.DoUnitTest(output_filename, unitTestDir, directory + '/unitTest.' + XML_EXT)
-        # print ('>>>>> FOLDER USED FOR UNIT TEST >>>>>>>>>>>>>>>>>>' + unitTestDir)
-        # print ('>>>>> DAE FILE USED FOR UNIT TEST >>>>>>>>>>>>>>>>>>' + output_filename)
+            error |= self.DoUnitTest(output_filename, unitTestDir, os.path.join(directory, 'unitTest.' + XML_EXT))
+            # print ('>>>>> FOLDER USED FOR UNIT TEST >>>>>>>>>>>>>>>>>>' + unitTestDir)
+            # print ('>>>>> DAE FILE USED FOR UNIT TEST >>>>>>>>>>>>>>>>>>' + output_filename)
+            # print ('directory=' + directory)
         return error

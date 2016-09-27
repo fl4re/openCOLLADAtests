@@ -14,8 +14,8 @@ class FCompareResult:
 
 
 class FImageComparator:
-    def __init__(self, configDict):
-        self.configDict = configDict
+    def __init__(self, config):
+        self.config = config
 
     def CompareImages(self, input_filename, input_filename2):
 

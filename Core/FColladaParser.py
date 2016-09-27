@@ -4,8 +4,8 @@ from Core.Common.DOMParser import *
 class FColladaParser:
     __root = 0
 
-    def __init__(self, configDict):
-        self.configDict = configDict
+    def __init__(self, config):
+        self.config = config
         # print("__INIT__ FColladaParser")
 
         self.testIO = 0

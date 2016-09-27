@@ -1,16 +1,18 @@
 import subprocess
+import os
 from FCommon import *
 
 
 class FValidator:
-    def __init__(self, configDict):
+    def __init__(self, config):
 
-        self.configDict = configDict
-        self.logFilename = self.configDict["directory"] + RESULT_DIR + '/mylogValidator.txt'
+        self.config = config
+        self.logFilename = os.path.join(self.config["opencolladatests_path"],
+                                        RESULT_DIR + os.path.sep + 'mylogValidator.txt')
 
         # Validator
-        self.validatorExe = self.configDict["directory"] + self.configDict["schemaValidatePath"]
-        self.xsdFile = self.configDict["directory"] + SCHEMA_LOCATION
+        self.validatorExe = self.config["schema_validate_path"]
+        self.xsdFile = os.path.join(self.config["opencolladatests_path"], 'Core' + os.path.sep + SCHEMA)
         self.xdsNamespace = SCHEMA_NAMESPACE
 
     # output_filename = name of the DAE exported that will be validated
