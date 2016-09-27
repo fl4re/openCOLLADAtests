@@ -1,6 +1,7 @@
 import subprocess
 import os
 from FCommon import *
+from Common.Util import *
 
 
 class FExporter:
@@ -17,14 +18,14 @@ class FExporter:
         print("--DO EXPORT")
         print '%s = output_filename' % (output_filename + '.' + DAE_EXT)
 
-        export = subprocess.Popen(
-            self.config["mayapy_path"] + ' ' + self.scriptExportPath + ' ' + '"' + self.config[
-                "colladamaya_path"] + '"' + ' ' + input_filename + ' ' + output_filename + '.dae' + ' ' + option + ' ',
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = export.communicate()
-        exitcode = export.returncode
+        exitcode = run(
+                       self.config["mayapy_path"] +
+                       ' ' + self.scriptExportPath +
+                       ' ' + self.config["colladamaya_path"] +
+                       ' ' + input_filename +
+                       ' ' + output_filename + '.dae ' +
+                       option, self.config["opencolladatests_path"])
         if str(exitcode) != '0':
-            print(err)
             print 'error exporting: %s' % input_filename
         else:
             print '%s exported' % input_filename

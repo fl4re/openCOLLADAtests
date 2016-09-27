@@ -1,4 +1,4 @@
-from common import *
+from Core.Common.Util import *
 from shutil import copy
 
 maya_path = os.environ.get('MAYA_PATH2015_X64')
@@ -11,9 +11,8 @@ if opencollada_path is None:
     print 'OPENCOLLADA_PATH environment variable is not set. It must point to OpenCOLLADA folder.'
     sys.exit(1)
 
-maya_plugins_path = os.path.join(maya_path, 'bin' + os.path.sep + 'plug-ins')
-
 if get_platform() == 'windows':
+    maya_plugins_path = os.path.join(maya_path, 'bin' + os.path.sep + 'plug-ins')
     maya_scripts_path = os.path.join(maya_path, 'scripts' + os.path.sep + 'others')
     collada_maya_path = os.path.join(opencollada_path, 'COLLADAMaya')
     mll_path = os.path.join(collada_maya_path,
@@ -30,6 +29,7 @@ if get_platform() == 'windows':
     copy(importer_mel_path, maya_scripts_path)
 
 elif get_platform() == 'macosx':
+    maya_plugins_path = os.path.join(maya_path, 'plug-ins' + os.path.sep + 'OpenCOLLADA')
     bundle_path = os.path.join(opencollada_path,
                                'COLLADAMaya' + os.path.sep + 'Build' + os.path.sep + 'Release 2015' + os.path.sep +
                                'COLLADAMaya.bundle')

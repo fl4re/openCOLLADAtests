@@ -22,18 +22,23 @@ class FColladaTest:
             if get_platform() == "windows":
                 maya_installation_path = "C:\\Program Files\\Autodesk\\Maya2015"
             elif get_platform() == "macosx":
-                maya_installation_path = "TODO"
+                maya_installation_path = "/Applications/Autodesk/maya2015"
 
         self.config = {}
 
         self.config["opencolladatests_path"] = opencolladatests_path
         self.config["core_path"] = os.path.join(self.config["opencolladatests_path"], "Core")
         self.config["maya_installation_path"] = maya_installation_path
-        self.config["maya_bin_path"] = os.path.join(self.config["maya_installation_path"], "bin")
-        self.config["maya_plugins_path"] = os.path.join(self.config["maya_bin_path"], "plug-ins")
+        if get_platform() == 'windows':
+            self.config["maya_bin_path"] = os.path.join(self.config["maya_installation_path"], "bin")
+            self.config["maya_plugins_path"] = os.path.join(self.config["maya_bin_path"], "plug-ins")
+            self.config["colladamaya_path"] = os.path.join(self.config["maya_plugins_path"], "COLLADAMaya")
+        elif get_platform() == 'macosx':
+            self.config["maya_bin_path"] = os.path.join(self.config["maya_installation_path"], "Maya.app" + os.path.sep + "Contents" + os.path.sep + "bin")
+            self.config["maya_plugins_path"] = os.path.join(self.config["maya_installation_path"], "plug-ins")
+            self.config["colladamaya_path"] = os.path.join(self.config["maya_plugins_path"], "OpenCOLLADA" + os.path.sep + "COLLADAMaya")
         self.config["mayapy_path"] = os.path.join(self.config["maya_bin_path"], "mayapy")
         self.config["render_path"] = os.path.join(self.config["maya_bin_path"], "Render")
-        self.config["colladamaya_path"] = os.path.join(self.config["maya_plugins_path"], "COLLADAMaya")
         self.config["schema_validate_path"] = os.path.join(self.config["core_path"], "SchemaValidate")
         self.config["coherency_test_path"] = os.path.join(self.config["core_path"], "coherencytest")
 

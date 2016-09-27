@@ -6,9 +6,8 @@ maya_path = os.environ.get('MAYA_PATH2015_X64')
 if maya_path is None:
     if get_platform() == 'windows':
         os.environ['MAYA_PATH2015_X64'] = 'C:\\Program Files\\Autodesk\\Maya2015'
-    # elif get_platform() == 'macosx':
-    # TODO
-    # os.environ['MAYA_PATH2015_X64'] = '/Applications/TODO'
+    elif get_platform() == 'macosx':
+        os.environ['MAYA_PATH2015_X64'] = '/Applications/Autodesk/maya2015'
 
 opencollada_path = os.environ.get('OPENCOLLADA_PATH')
 if opencollada_path is None:
