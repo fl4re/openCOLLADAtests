@@ -17,6 +17,14 @@ if opencollada_path is None:
 print 'using OPENCOLLADA_PATH=' + os.environ['OPENCOLLADA_PATH']
 print 'using MAYA_PATH2015_X64=' + os.environ['MAYA_PATH2015_X64']
 
+if not os.path.exists(os.environ['MAYA_PATH2015_X64']):
+    print "Error: " + os.environ['MAYA_PATH2015_X64'] + " doesn't exist."
+    sys.exit(1)
+
+if not os.path.exists(os.environ['OPENCOLLADA_PATH']):
+    print "Error: " + os.environ['OPENCOLLADA_PATH'] + " doesn't exist."
+    sys.exit(1)
+
 exitcode = 0
 
 # install COLLADAMaya plugin
