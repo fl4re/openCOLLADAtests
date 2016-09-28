@@ -19,11 +19,11 @@ class FExporter:
         print '%s = output_filename' % (output_filename + '.' + DAE_EXT)
 
         exitcode = run(
-                       self.config["mayapy_path"] +
-                       ' ' + self.scriptExportPath +
-                       ' ' + self.config["colladamaya_path"] +
-                       ' ' + input_filename +
-                       ' ' + output_filename + '.dae ' +
+                       '"' + self.config["mayapy_path"] + '"' +
+                       ' "' + self.scriptExportPath + '"' +
+                       ' "' + self.config["colladamaya_path"] + '"' +
+                       ' "' + input_filename + '"' +
+                       ' "' + output_filename + '.dae" ' +
                        option, self.config["opencolladatests_path"])
         if str(exitcode) != '0':
             print 'error exporting: %s' % input_filename
