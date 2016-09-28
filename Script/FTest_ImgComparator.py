@@ -13,7 +13,7 @@ class FTest_ImgComparator(FColladaTest):
         # print("--DO PROCESS FTest_ImgComparator")
         error = FColladaTest.DoProcess(self)
 
-        if not os.path.exists(self.configDict["directory"] + RESULT_DIR):
-            os.makedirs(self.configDict["directory"] + RESULT_DIR)
+        if not os.path.exists(self.config["opencolladatests_path"] + RESULT_DIR):
+            os.makedirs(self.config["opencolladatests_path"] + RESULT_DIR)
 
         return error | self.imageComparator.CompareImages(input_filename, input_filename2) is False

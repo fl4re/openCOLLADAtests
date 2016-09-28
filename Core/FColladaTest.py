@@ -8,56 +8,58 @@ from Core.FImporter import FImporter
 from Core.FRenderer import FRenderer
 from Core.FUnitTest import FUnitTest
 from Core.FValidator import FValidator
+from Common.Util import *
 
 
 class FColladaTest:
     def __init__(self, input_filename):
-
-        # print("INIT FColladaTest")
-
-        # Read in and parse the configuration file.
-        configDict1 = {}
-
-        myPath = os.path.dirname(os.path.abspath(__file__))
-        configDict1["directory"] = myPath + "/../"
-
-        # myPath = os.getcwd()
-        # myPath = myPath.replace("\\", "/")
-        # print myPath
-        # configDict1["directory"] = os.getcwd()
-
-        if os.path.isfile(CONFIGURATION_FILE):
-            f = open(CONFIGURATION_FILE)
-            line = f.readline()
-            while line:
-                while line.count("\t\t") > 0:
-                    line = line.replace("\t\t", "\t")
-                key, value = line.split("\t", 1)
-                if key in configDict1:
-                    print ("Warning: Ignoring redefinition of configuration key: " + key + ".")
-                    continue
-
-                # print("key" + key + ";value  " + value.strip())
-                configDict1[key] = value.strip()  # remove \n
-                line = f.readline()
-            # f.close
-
-        self.configDict = configDict1
-
-        # name of the maya saved from the imported DAE
-        self.ouput_maya_file = self.configDict["directory"] + RESULT_DIR + MAYA_FILE_MA
-
         # name of the DAE to be imported
         self.input_filename = input_filename
 
-        self.importer = FImporter(self.configDict)
-        self.exporter = FExporter(self.configDict)
-        self.renderer = FRenderer(self.configDict)
-        self.validator = FValidator(self.configDict)
-        self.coherencyTest = FCoherencyTest(self.configDict)
-        self.imageComparator = FImageComparator(self.configDict)
-        self.unitTest = FUnitTest(self.configDict)
-        self.colladaParser = FColladaParser(self.configDict)
+        opencolladatests_path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+        maya_installation_path = os.environ.get("MAYA_PATH2015_X64")
+        if maya_installation_path is None:
+            if get_platform() == "windows":
+                maya_installation_path = "C:\\Program Files\\Autodesk\\Maya2015"
+            elif get_platform() == "macosx":
+                maya_installation_path = "/Applications/Autodesk/maya2015"
+
+        self.config = {}
+
+        self.config["opencolladatests_path"] = opencolladatests_path
+        self.config["core_path"] = os.path.join(self.config["opencolladatests_path"], "Core")
+        self.config["maya_installation_path"] = maya_installation_path
+        if get_platform() == 'windows':
+            self.config["maya_bin_path"] = os.path.join(self.config["maya_installation_path"], "bin")
+            self.config["maya_plugins_path"] = os.path.join(self.config["maya_bin_path"], "plug-ins")
+            self.config["colladamaya_path"] = os.path.join(self.config["maya_plugins_path"], "COLLADAMaya")
+        elif get_platform() == 'macosx':
+            self.config["maya_bin_path"] = os.path.join(self.config["maya_installation_path"], "Maya.app" + os.path.sep + "Contents" + os.path.sep + "bin")
+            self.config["maya_plugins_path"] = os.path.join(self.config["maya_installation_path"], "plug-ins")
+            self.config["colladamaya_path"] = os.path.join(self.config["maya_plugins_path"], "OpenCOLLADA" + os.path.sep + "COLLADAMaya")
+        self.config["mayapy_path"] = os.path.join(self.config["maya_bin_path"], "mayapy")
+        self.config["render_path"] = os.path.join(self.config["maya_bin_path"], "Render")
+        self.config["schema_validate_path"] = os.path.join(self.config["core_path"], "SchemaValidate")
+        self.config["coherency_test_path"] = os.path.join(self.config["core_path"], "coherencytest")
+
+        if get_platform() == "windows":
+            self.config["mayapy_path"] += ".exe"
+            self.config["render_path"] += ".exe"
+            self.config["colladamaya_path"] += ".mll"
+            self.config["schema_validate_path"] += ".exe"
+            self.config["coherency_test_path"] += ".exe"
+
+        # name of the maya saved from the imported DAE
+        self.output_maya_file = os.path.join(self.config["opencolladatests_path"], RESULT_DIR + MAYA_FILE_MA)
+
+        self.importer = FImporter(self.config)
+        self.exporter = FExporter(self.config)
+        self.renderer = FRenderer(self.config)
+        self.validator = FValidator(self.config)
+        self.coherencyTest = FCoherencyTest(self.config)
+        self.imageComparator = FImageComparator(self.config)
+        self.unitTest = FUnitTest(self.config)
+        self.colladaParser = FColladaParser(self.config)
 
     #######################################################################################
     @staticmethod
@@ -99,6 +101,6 @@ class FColladaTest:
     def DoProcess(self):
 
         print("--DO PROCESS FColladaTest")
-        if not os.path.exists(self.configDict["directory"] + RESULT_DIR):
-            os.makedirs(self.configDict["directory"] + RESULT_DIR)
+        if not os.path.exists(self.config["opencolladatests_path"] + RESULT_DIR):
+            os.makedirs(self.config["opencolladatests_path"] + RESULT_DIR)
         return 0

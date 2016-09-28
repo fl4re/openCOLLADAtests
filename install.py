@@ -2,9 +2,12 @@ import os
 import sys
 
 from subprocess import call
+from Core.Common.Util import *
 
 import platform
 
+# MacOSX:
+# sudo -H python install.py
 
 def main(argv):
     # install PIP
@@ -19,7 +22,9 @@ def main(argv):
         sys.exit(0)
 
     # install Numpy package https://pypi.python.org/pypi/numpy
-    if platform.architecture()[0] == "64bit":
+    if get_platform() == 'macosx':
+        package = "numpy-1.11.2rc1-cp27-cp27m-macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl"
+    elif platform.architecture()[0] == "64bit":
         package = "numpy-1.11.0-cp27-none-win_amd64.whl"
     else:
         package = "numpy-1.11.0-cp27-none-win32.whl"

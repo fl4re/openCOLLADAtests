@@ -13,10 +13,10 @@ class FTest_Validate(FColladaTest):
         # print("--DO PROCESS FTest_Validate")
         error = FColladaTest.DoProcess(self)
 
-        if not os.path.exists(self.configDict["directory"] + RESULT_DIR):
-            os.makedirs(self.configDict["directory"] + RESULT_DIR)
+        if not os.path.exists(self.config["opencolladatests_path"] + RESULT_DIR):
+            os.makedirs(self.config["opencolladatests_path"] + RESULT_DIR)
 
         # validate
-        logFile = self.configDict["directory"] + RESULT_DIR + 'validation' + '.log'
+        logFile = self.config["opencolladatests_path"] + RESULT_DIR + 'validation' + '.log'
         error |= self.DoValidate(self.input_filename, logFile)
         return error

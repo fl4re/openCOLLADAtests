@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+import shlex
 
 
 def get_platform():
@@ -22,14 +23,14 @@ def run(command_line, working_directory=None, check_exit_code=False):
 
     # out = ""
     print "Running \"{}\" in \"{}\"...".format(command_line, working_directory)
-    parts = command_line.split()
+    parts = shlex.split(command_line)
     try:
         process = subprocess.Popen(parts,
                                    cwd=working_directory,
                                    env=environ,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.STDOUT,
-                                   shell=(get_platform() == "windows")
+                                   shell=False
                                    )
         for line in iter(process.stdout.readline, ''):
             # unmodified_line = line

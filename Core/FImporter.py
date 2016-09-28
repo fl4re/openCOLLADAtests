@@ -1,14 +1,16 @@
 import subprocess
-
+import os
 from FCommon import *
 
 
 class FImporter:
-    def __init__(self, configDict):
+    def __init__(self, config):
 
-        self.configDict = configDict
-        self.scriptImportPath = self.configDict["directory"] + 'Core/FImportCmd.py'
-        self.logFilename = self.configDict["directory"] + RESULT_DIR + '/mylogImport.txt'
+        self.config = config
+        self.scriptImportPath = os.path.join(self.config["opencolladatests_path"],
+                                             'Core' + os.path.sep + 'FImportCmd.py')
+        self.logFilename = os.path.join(self.config["opencolladatests_path"],
+                                        RESULT_DIR + os.path.sep + 'mylogImport.txt')
 
     def DoImport(self, input_filename, output_maya_file):
 
@@ -22,8 +24,8 @@ class FImporter:
             log = open(self.logFilename, "a")
 
         importP = subprocess.Popen(
-            self.configDict["mayaPath"] + ' ' + self.scriptImportPath + ' ' + '"' + self.configDict[
-                "mayaColladaPluginName"] + '"' + ' ' + input_filename + ' ' + output_maya_file + ' ', stdout=log,
+            self.config["mayapy_path"] + ' ' + self.scriptImportPath + ' ' + '"' + self.config[
+                "colladamaya_path"] + '"' + ' ' + input_filename + ' ' + output_maya_file + ' ', stdout=log,
             stderr=subprocess.PIPE)
         out, err = importP.communicate()
         exitcode = importP.returncode
