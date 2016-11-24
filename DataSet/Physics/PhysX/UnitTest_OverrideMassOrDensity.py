@@ -4,14 +4,6 @@ from numpy import *
 from xml.dom.minidom import *
 
 
-def GetChildrenElementsByTagName(element, tag):
-    result = []
-    for child in element.childNodes:
-        if child.nodeType == Node.ELEMENT_NODE and child.tagName == tag:
-            result.append(child)
-    return result
-
-
 def GetChildElementByTagName(element, tag):
     for child in element.childNodes:
         if child.nodeType == Node.ELEMENT_NODE and child.tagName == tag:
