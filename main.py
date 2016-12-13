@@ -18,16 +18,24 @@ parser.add_argument("--validation-test", dest="doValidationTest", nargs=1,
                     help="Run schema validation test on given DAE file.")
 parser.add_argument("--unit-test", dest="doUnitTest", nargs=3,
                     help="Run unit tests with specified DAE file, unit test directory and xml result file.")
+parser.add_argument("--option", dest="doOption", nargs=1,
+                    help="options.")
+
 options = parser.parse_args()
 
 error = 0
 
+if options.doOption:
+    option = options.doOption[0]
+else:
+    option = None
+
 if options.doExportTest:
-    myTest = FTest_Exporter("")
+    myTest = FTest_Exporter(option, "")
     error |= myTest.DoProcess()
 
 if options.doExportImportTest:
-    myTest = FTest_Exporter_Import("")
+    myTest = FTest_Exporter_Import(option, "")
     error |= myTest.DoProcess()
 
 if options.doCoherencyTest is not None:

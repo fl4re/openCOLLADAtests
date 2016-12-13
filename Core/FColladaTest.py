@@ -38,12 +38,14 @@ class FColladaTest:
             self.config["maya_plugins_path"] = os.path.join(self.config["maya_installation_path"], "plug-ins")
             self.config["colladamaya_path"] = os.path.join(self.config["maya_plugins_path"], "OpenCOLLADA" + os.path.sep + "COLLADAMaya")
         self.config["mayapy_path"] = os.path.join(self.config["maya_bin_path"], "mayapy")
+        self.config["maya_path"] = os.path.join(self.config["maya_bin_path"], "maya")
         self.config["render_path"] = os.path.join(self.config["maya_bin_path"], "Render")
         self.config["schema_validate_path"] = os.path.join(self.config["core_path"], "SchemaValidate")
         self.config["coherency_test_path"] = os.path.join(self.config["core_path"], "coherencytest")
 
         if get_platform() == "windows":
             self.config["mayapy_path"] += ".exe"
+            self.config["maya_path"] += ".exe"
             self.config["render_path"] += ".exe"
             self.config["colladamaya_path"] += ".mll"
             self.config["schema_validate_path"] += ".exe"

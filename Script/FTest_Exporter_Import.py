@@ -17,13 +17,17 @@ from Core.FColladaTest import FColladaTest
 
 
 class FTest_Exporter_Import(FColladaTest):
-    def __init__(self, input_filename):
+    def __init__(self, options, input_filename):
 
         # print("FTest_Exporter_Import init")
 
         FColladaTest.__init__(self, input_filename)
 
-        self.options = 'bakeTransforms=0;exportLights=0'
+        if not options:
+            self.options = OPTIONS
+        else:
+            self.options = options
+
         self._mayaFilesList = []
 
     def RetrieveFiles(self, path=None, ext='.mb'):
