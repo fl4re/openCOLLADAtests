@@ -11,9 +11,7 @@ class FValidator:
                                         RESULT_DIR + os.path.sep + 'mylogValidator.txt')
 
         # Validator
-        self.validatorExe = self.config["schema_validate_path"]
-        self.xsdFile = os.path.join(self.config["opencolladatests_path"], 'Core' + os.path.sep + SCHEMA)
-        self.xdsNamespace = SCHEMA_NAMESPACE
+        self.validatorExe = self.config["validator_path"]
 
     # output_filename = name of the DAE exported that will be validated
     def DoValidate(self, output_filename, logName):
@@ -26,9 +24,7 @@ class FValidator:
         else:
             log = open(self.logFilename, "a")
 
-        validator = self.validatorExe + ' {} {} {} {}'
-
-        cmd = validator.format(output_filename, self.xsdFile, self.xdsNamespace, logName)
+        cmd = self.validatorExe + ' ' + output_filename
         validate = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT)
 
         out, err = validate.communicate()
