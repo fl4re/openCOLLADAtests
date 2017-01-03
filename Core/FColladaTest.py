@@ -9,6 +9,15 @@ from Core.FValidator import FValidator
 from Common.Util import *
 
 
+def find_file(root_dir, filename, parent_dir_partial_name=''):
+    for dirpath, dirnames, filenames in os.walk(root_dir):
+        if parent_dir_partial_name == '' or dirpath.endswith(parent_dir_partial_name):
+            for f in filenames:
+                if f == filename:
+                    return os.path.join(dirpath, f)
+    return ''
+
+
 class FColladaTest:
     def __init__(self, input_filename):
         # name of the DAE to be imported
@@ -42,13 +51,16 @@ class FColladaTest:
             self.config["colladamaya_path"] = os.path.join(self.config["maya_plugins_path"], "OpenCOLLADA" + os.path.sep + "COLLADAMaya")
         self.config["mayapy_path"] = os.path.join(self.config["maya_bin_path"], "mayapy")
         self.config["render_path"] = os.path.join(self.config["maya_bin_path"], "Render")
-        self.config["validator_path"] = os.path.join(self.config["opencollada_path"], "cmake_temp" + os.path.sep + "bin" + os.path.sep + "Release" + os.path.sep + "DAEValidator")
+
+        validator_exe_name = "DAEValidator"
 
         if get_platform() == "windows":
             self.config["mayapy_path"] += ".exe"
             self.config["render_path"] += ".exe"
             self.config["colladamaya_path"] += ".mll"
-            self.config["validator_path"] += ".exe"
+            validator_exe_name += ".exe"
+
+        self.config["validator_path"] = find_file(self.config["opencollada_path"], validator_exe_name, "Release")
 
         # name of the maya saved from the imported DAE
         self.output_maya_file = os.path.join(self.config["opencolladatests_path"], RESULT_DIR + MAYA_FILE_MA)
