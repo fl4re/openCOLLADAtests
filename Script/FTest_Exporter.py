@@ -15,6 +15,12 @@ from Core.FColladaTest import FColladaTest
 #################################################################################################
 
 
+def EndsWith(str, strs):
+    for s in strs:
+        if str.endswith(s):
+            return True
+    return False
+
 class FTest_Exporter(FColladaTest):
     def __init__(self, input_filename):
 
@@ -25,7 +31,7 @@ class FTest_Exporter(FColladaTest):
         self.options = 'bakeTransforms=1;exportLights=0'
         self._mayaFilesList = []
 
-    def RetrieveFiles(self, path=None, ext='.mb'):
+    def RetrieveFiles(self, path=None, exts=['.mb', '.ma']):
         if not path:
             path = os.getcwd()
         # print path
@@ -36,9 +42,9 @@ class FTest_Exporter(FColladaTest):
                     spath = path + os.path.sep + each
                     if os.path.isfile(spath):
                         # file type must be exactly matched
-                        if spath.endswith(ext):
+                        if EndsWith(spath, exts):
                             self._mayaFilesList.append(spath)
-                    self.RetrieveFiles(spath, ext)
+                    self.RetrieveFiles(spath, exts)
                 # print self._mayaFilesList
 
     def DoProcess(self):
