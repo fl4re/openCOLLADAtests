@@ -4,7 +4,6 @@ Validation tests for openCOLLADA plugin.
 Python test framework which allows you to validate openCOLLADA Maya plugin. Five differents tests are available to validate the openCOLLADA plugin:
 
 - Validation
-- Coherency
 - Export/Import
 - Export only
 - Unit tests
@@ -28,12 +27,6 @@ Manual installation steps if not using Anaconda:
   2. You can then launch tests by executing launch.bat
 
 If needed you can run tests individually:
-
-### Coherency test
-
-python main.py --coherency-test file.dae
-
-Coherency test is launched against provided .dae. Result from the coherency test are written in "error_log.txt" in Result folder.
 
 ### Validation test
 

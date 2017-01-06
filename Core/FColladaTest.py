@@ -1,5 +1,3 @@
-import os
-from Core.FCoherencyTest import FCoherencyTest
 from Core.FColladaParser import FColladaParser
 from Core.FCommon import *
 from Core.FExporter import FExporter
@@ -9,6 +7,15 @@ from Core.FRenderer import FRenderer
 from Core.FUnitTest import FUnitTest
 from Core.FValidator import FValidator
 from Common.Util import *
+
+
+def find_file(root_dir, filename, parent_dir_partial_name=''):
+    for dirpath, dirnames, filenames in os.walk(root_dir):
+        if parent_dir_partial_name == '' or dirpath.endswith(parent_dir_partial_name):
+            for f in filenames:
+                if f == filename:
+                    return os.path.join(dirpath, f)
+    return ''
 
 
 class FColladaTest:
@@ -24,9 +31,14 @@ class FColladaTest:
             elif get_platform() == "macosx":
                 maya_installation_path = "/Applications/Autodesk/maya2015"
 
+        opencollada_path = os.environ.get("OPENCOLLADA_PATH")
+        if opencollada_path is None:
+            opencollada_path = os.path.normpath(os.path.join(opencolladatests_path, ".." + os.path.sep + "OpenCOLLADA"))
+
         self.config = {}
 
         self.config["opencolladatests_path"] = opencolladatests_path
+        self.config["opencollada_path"] = opencollada_path
         self.config["core_path"] = os.path.join(self.config["opencolladatests_path"], "Core")
         self.config["maya_installation_path"] = maya_installation_path
         if get_platform() == 'windows':
@@ -39,15 +51,16 @@ class FColladaTest:
             self.config["colladamaya_path"] = os.path.join(self.config["maya_plugins_path"], "OpenCOLLADA" + os.path.sep + "COLLADAMaya")
         self.config["mayapy_path"] = os.path.join(self.config["maya_bin_path"], "mayapy")
         self.config["render_path"] = os.path.join(self.config["maya_bin_path"], "Render")
-        self.config["schema_validate_path"] = os.path.join(self.config["core_path"], "SchemaValidate")
-        self.config["coherency_test_path"] = os.path.join(self.config["core_path"], "coherencytest")
+
+        validator_exe_name = "DAEValidator"
 
         if get_platform() == "windows":
             self.config["mayapy_path"] += ".exe"
             self.config["render_path"] += ".exe"
             self.config["colladamaya_path"] += ".mll"
-            self.config["schema_validate_path"] += ".exe"
-            self.config["coherency_test_path"] += ".exe"
+            validator_exe_name += ".exe"
+
+        self.config["validator_path"] = find_file(self.config["opencollada_path"], validator_exe_name, "Release")
 
         # name of the maya saved from the imported DAE
         self.output_maya_file = os.path.join(self.config["opencolladatests_path"], RESULT_DIR + MAYA_FILE_MA)
@@ -56,7 +69,6 @@ class FColladaTest:
         self.exporter = FExporter(self.config)
         self.renderer = FRenderer(self.config)
         self.validator = FValidator(self.config)
-        self.coherencyTest = FCoherencyTest(self.config)
         self.imageComparator = FImageComparator(self.config)
         self.unitTest = FUnitTest(self.config)
         self.colladaParser = FColladaParser(self.config)
@@ -75,11 +87,6 @@ class FColladaTest:
         return FColladaParser.GetElementsByTags(daeElement, tagLst)
 
     #######################################################################################
-
-
-
-    def DoCoherencyTest(self, inputfile, logFile):
-        return self.coherencyTest.DoCoherencyTest(inputfile, logFile)
 
     def DoRender(self, input_filename):
         return self.renderer.DoRender(input_filename)
