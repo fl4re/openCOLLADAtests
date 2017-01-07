@@ -50,12 +50,14 @@ class FColladaTest:
             self.config["maya_plugins_path"] = os.path.join(self.config["maya_installation_path"], "plug-ins")
             self.config["colladamaya_path"] = os.path.join(self.config["maya_plugins_path"], "OpenCOLLADA" + os.path.sep + "COLLADAMaya")
         self.config["mayapy_path"] = os.path.join(self.config["maya_bin_path"], "mayapy")
+        self.config["maya_path"] = os.path.join(self.config["maya_bin_path"], "maya")
         self.config["render_path"] = os.path.join(self.config["maya_bin_path"], "Render")
 
         validator_exe_name = "DAEValidator"
 
         if get_platform() == "windows":
             self.config["mayapy_path"] += ".exe"
+            self.config["maya_path"] += ".exe"
             self.config["render_path"] += ".exe"
             self.config["colladamaya_path"] += ".mll"
             validator_exe_name += ".exe"

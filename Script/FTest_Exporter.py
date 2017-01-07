@@ -16,16 +16,20 @@ from Core.FColladaTest import FColladaTest
 
 
 class FTest_Exporter(FColladaTest):
-    def __init__(self, input_filename):
+    def __init__(self, options, input_filename):
 
         # print("FTest_Exporter init")
 
         FColladaTest.__init__(self, input_filename)
 
-        self.options = 'bakeTransforms=1;exportLights=0'
+        if not options:
+            self.options = OPTIONS
+        else:
+            self.options = options
+
         self._mayaFilesList = []
 
-    def RetrieveFiles(self, path=None, ext='.mb'):
+    def RetrieveFiles(self, path=None, ext='.ma', ext2='.mb'):
         if not path:
             path = os.getcwd()
         # print path
@@ -38,7 +42,9 @@ class FTest_Exporter(FColladaTest):
                         # file type must be exactly matched
                         if spath.endswith(ext):
                             self._mayaFilesList.append(spath)
-                    self.RetrieveFiles(spath, ext)
+                        elif spath.endswith(ext2):
+                            self._mayaFilesList.append(spath)
+                    self.RetrieveFiles(spath, ext, ext2)
                 # print self._mayaFilesList
 
     def DoProcess(self):

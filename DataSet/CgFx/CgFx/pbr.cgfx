@@ -1,0 +1,208 @@
+static const float M_PI = 3.1415926535897932384626433832795;
+
+static const float3 DIELECTRIC_F0 = float3( 0.04f, 0.04f, 0.04f );
+static const float MIN_ROUGHNESS = 0.015f;
+
+float GlossMapToSpecularValue ( float gloss_texel_value )
+{
+    // from https://s3.amazonaws.com/docs.knaldtech.com/knald/1.0.0/lys_power_drops.html
+    // half n = 10.0 / log2((1-roughness)*0.968 + 0.03);
+    // #if defined(SHADER_API_PS3)
+    //  n = max(n,-255.9370);  //i.e. less than sqrt(65504)
+    // #endif
+    // return n * n;
+    // NOTE: another approximate approach to match Marmoset gloss curve is to
+    // multiply roughness by 0.7599 in the code below (makes SpecPower range 4..N instead of 1..N)
+
+    float n = 10.0 / log2(gloss_texel_value*0.968 + 0.03);
+    float N = n * n;
+    return N;
+}
+
+float GlossinessToRoughness( float glossiness )
+{
+	return saturate( pow( 1.0f / ( GlossMapToSpecularValue( glossiness ) + 2.0 ), 0.18f ) );
+}
+
+float MipToRoughness( float mip )
+{
+	return mip; // seems that linear distribution gives better appearance than exponent-2 (Dice's suggestion)
+}
+
+float RougtnessToMip( float roughness, float mips )
+{
+	return roughness * mips;
+}
+
+float3 Fresnel( float3 f0, float f90, float angle )
+{
+	return f0 + ( float3(f90) - f0 ) * pow ( 1.0 - angle, 5.0f );
+}
+
+float Fresnel( float f0, float angle )
+{
+	return f0 + ( 1.0f - f0 ) * pow ( 1.0 - angle, 5.0f );
+}
+
+float GetF90( float roughness, float3 f0 )
+{
+	 // as long as we don't have specular micro-occlusion map, just reduce f90 on rough non-metal surfaces
+	return saturate( 1.0f - roughness + f0.r );
+}
+
+float DisneyDiffuse( float NdotV, float NdotL, float LdotH, float roughness )
+{
+	// re-normalize diffuse (shouldn't be more than 1 in combination with specular)
+	float energyBias = lerp( 0, 0.5, roughness );
+	float energyFactor = lerp( 1.0f, 1.0f / 1.51f, roughness );
+	float fd90 = energyBias + 2.0 * LdotH * LdotH * roughness;
+
+	float3 f0 = float3( 1.0f, 1.0f, 1.0f );
+	float lightScatter = Fresnel( f0, fd90, NdotL ).r;
+	float viewScatter = Fresnel( f0, fd90, NdotV ).r;
+
+	return lightScatter * viewScatter * energyFactor / M_PI;
+	//return 1.0f / M_PI; // lambertian diffuse
+}
+
+float GGXDistrib( float NdotH, float roughness )
+{
+	float alpha = roughness * roughness;
+	float t = alpha / ( NdotH * NdotH * ( alpha * alpha - 1.0f ) + 1.0 + 1e-4f );
+	return t * t / M_PI;
+}
+
+float G1( float NdotX, float k )
+{
+	return 1.0f / ( NdotX * ( 1.0 - k ) + k );
+}
+
+//
+float GGXVisibilityShlickSmith( float NdotL, float NdotV, float roughness )
+{
+	//roughness = ( roughness + 1 ) / 2;
+	float k = roughness * roughness / 2;
+	return G1( NdotL, k ) * G1( NdotV, k ) / 4;
+}
+
+//
+float GGXVisibilitySmith( float NdotL, float NdotV, float roughness )
+{
+	float m2 	= roughness * roughness;
+    float visV = NdotV + sqrt( NdotV * ( NdotV - NdotV * m2 ) + m2 );
+    float visL = NdotL + sqrt( NdotL * ( NdotL - NdotL * m2 ) + m2 );
+    return 1.0f / ( visV * visL );
+}
+
+float GGXVisibilitySmithCorrelated( float NdotL, float NdotV, float roughness )
+{
+	float m2 	= roughness * roughness;
+	// caution - the " NdotL *" and " NdotV *" are explicitely inversed, this is not a mistake
+	float visV	= NdotL * sqrt( NdotV * ( NdotV - NdotV * m2 ) + m2 );
+	float visL	= NdotV * sqrt( NdotL * ( NdotL - NdotL * m2 ) + m2 );
+	return 0.5f / ( visV + visL );
+}
+
+float3 LightDiffuse( float3 normal, float3 view, float3 light, float3 f0, float roughness, float3 lightEnergy, float ao )
+{
+	float3 H = normalize( light + view );
+
+	float NdotV = max( 1e-5, dot( normal, view ) );
+	float NdotL = saturate( dot( normal, light ) );
+	float LdotH = saturate( dot( light, H ) );
+
+	return DisneyDiffuse( NdotV, NdotL, LdotH, roughness ) * lightEnergy * NdotL * ao;
+}
+
+float SpecOcclusion( float NdotV, float ao, float roughness )
+{
+	// more contrast occlusion on smooth areas (Dice's approach)
+	return saturate( pow( NdotV + ao, exp2( -16.0f * roughness - 1.0f ) ) - 1.0f + ao );
+}
+
+float3 LightSpecular( float3 normal, float3 view, float3 light, float3 f0, float roughness, float3 lightEnergy, float ao )
+{
+	float3 H = normalize( light + view );
+
+	float NdotV = max( 1e-8, dot( normal, view ) );
+	float NdotL = saturate( dot( normal, light ) );
+	float LdotH = saturate( dot( light, H ) );
+	float NdotH = saturate( dot( normal, H ) );
+
+	float f90 = GetF90( roughness, f0 );
+
+	float3 f = Fresnel( f0, f90, LdotH );
+	float v = GGXVisibilitySmithCorrelated( NdotL, NdotV, roughness );
+	float d = GGXDistrib( NdotH, roughness );
+
+	return f * v * d * lightEnergy * NdotL * SpecOcclusion( NdotV, ao, roughness );
+}
+
+float3 EnvDFGPolynomial( float3 f0, float roughness, float ndotv )
+{
+    float x = 1.0f - roughness;
+    float y = ndotv;
+
+    float b1 = -0.1688;
+    float b2 = 1.895;
+    float b3 = 0.9903;
+    float b4 = -4.853;
+    float b5 = 8.404;
+    float b6 = -5.069;
+    float bias = saturate( min( b1 * x + b2 * x * x, b3 + b4 * y + b5 * y * y + b6 * y * y * y ) );
+
+    float d0 = 0.6045;
+    float d1 = 1.699;
+    float d2 = -0.5228;
+    float d3 = -3.603;
+    float d4 = 1.404;
+    float d5 = 0.1939;
+    float d6 = 2.661;
+    float delta = saturate( d0 + d1 * x + d2 * y + d3 * x * x + d4 * x * y + d5 * y * y + d6 * x * x * x );
+    float scale = delta - bias;
+
+    return f0 * scale + bias;
+}
+
+float3 GetSpecularDominantDir( float3 N, float3 R, float NdotV, float roughness, float3 f0 )
+{
+	//float lerpFactor = pow (1 - NdotV , 10.8649) * (1 - 0.298475 * log (39.4115 - 39.0029 * roughness ) ) + 0.298475 * log (39.4115 - 39.0029 * roughness );
+
+	// Dice's approximation with better appearance
+	float smoothness = saturate( 1 - roughness );
+	float lerpFactor = smoothness * ( sqrt( smoothness ) + roughness );
+
+	// don't warp on non-metals
+	// lerpFactor = saturate( lerpFactor + ( 1 - f0.r ) );
+
+	// the result is not normalized as we fetch in a cubemap
+	return lerp( N, R, lerpFactor );
+}
+
+float3 SpecularIblPrefiltered( samplerCUBE cubeMap, float3 f0, float roughness, float cubeMip, float3 R, float3 N, float3 V )
+{
+	float NdotV = saturate( dot( N, V ) );
+
+	R = GetSpecularDominantDir( N, R, NdotV, roughness, f0 );
+
+	float f90 = GetF90( roughness, f0 );
+	float3 prefilteredColor = Rgbe2Hdr(texCUBElod(cubeMap, float4( R, cubeMip ))).rgb;
+	return prefilteredColor * EnvDFGPolynomial( f0, roughness, NdotV );
+}
+
+float3 GetDiffuseDominantDir ( float3 N , float3 V , float NdotV , float roughness )
+{
+	float a = 1.02341f * roughness - 1.51174f;
+	float b = -0.511705f * roughness + 0.755868f;
+	float lerpFactor = saturate( ( NdotV * a + b ) * roughness );
+	// The result is not normalized as we fetch in a cubemap
+	return lerp( N, V, lerpFactor );
+}
+
+float3 DiffuseIblPrefiltered( samplerCUBE cubeMap, float roughness, float3 N, float3 V )
+{
+	float NdotV = saturate( dot( N, V ) );
+	float3 D = N;
+	// D = GetDiffuseDominantDir( N, V, NdotV, roughness ); any difference?
+	return Rgbe2Hdr(texCUBElod(cubeMap, float4( D, 16 ))).rgb; // sample from the highest mip
+}
