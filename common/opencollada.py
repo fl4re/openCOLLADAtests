@@ -2,6 +2,9 @@ from opencolladatests import OpenCOLLADATests
 from util import *
 
 
+#
+# Use this class to access OpenCOLLADA related stuff.
+#
 class OpenCOLLADA:
     opencolla_path = None
     validator_path = None

@@ -1,6 +1,9 @@
 from abc import ABCMeta, abstractmethod
 
 
+#
+# Base class to implement to support new CAD software to test.
+#
 class CADTool(object):
     __metaclass__ = ABCMeta
 

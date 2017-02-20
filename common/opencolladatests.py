@@ -1,6 +1,9 @@
 import os
 
 
+#
+# Use this class to access openCOLLADAtests related stuff.
+#
 class OpenCOLLADATests:
     opencolladatests_path = None
 

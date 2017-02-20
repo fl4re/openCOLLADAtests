@@ -4,6 +4,8 @@ from common.opencollada import OpenCOLLADA
 from colladamaya.maya import Maya
 from common.test_runner import TestRunner
 
+# Runs this python file to launch Maya tests.
+
 # TODO factorize with launch_colladamax_tests.py
 # launch_tests.py --tool=maya --version=2015
 # launch_tests.py --tool=max --version=2017
@@ -29,7 +31,7 @@ maya.install_plugin()
 # run tests
 res = 0
 test_runner = TestRunner(maya)
-res |= test_runner.test_export()
+res |= test_runner.run_export_test()
 # res |= test_runner.test_import()
 
 if res == 0:

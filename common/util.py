@@ -4,6 +4,11 @@ import sys
 import shlex
 
 
+#
+# Utility functions.
+#
+
+# Returns platform as string
 def get_platform():
     if sys.platform == "win32":
         return "windows"
@@ -15,6 +20,7 @@ def get_platform():
         return sys.platform
 
 
+# Runs a subprocess.
 def run(command_line, working_directory=None, check_exit_code=False):
     environ = os.environ
 
@@ -50,6 +56,7 @@ def run(command_line, working_directory=None, check_exit_code=False):
         raise
 
 
+# Finds a file in root_dir and returns found file's full path.
 def find_file(root_dir, filename, parent_dir_partial_name=''):
     for dirpath, dirnames, filenames in os.walk(root_dir):
         if parent_dir_partial_name == '' or dirpath.endswith(parent_dir_partial_name):
@@ -59,6 +66,7 @@ def find_file(root_dir, filename, parent_dir_partial_name=''):
     return ''
 
 
+# Returns true if str ends with one of the strings in strs.
 def ends_with(str, strs):
     for s in strs:
         if str.endswith(s):
@@ -66,6 +74,7 @@ def ends_with(str, strs):
     return False
 
 
+# Lists files in root_dir.
 def list_files(root_dir, exts, recursive):
     file_list = []
     for dirpath, dirnames, filenames in os.walk(root_dir):

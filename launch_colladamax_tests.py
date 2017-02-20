@@ -4,6 +4,8 @@ from common.opencollada import OpenCOLLADA
 from colladamax.max import Max
 from common.test_runner import TestRunner
 
+# Runs this python file to launch 3DSMax tests.
+
 if __name__ != '__main__':
     sys.exit(1)
 
@@ -28,7 +30,7 @@ smax.install_plugin()
 # run tests
 res = 0
 test_runner = TestRunner(smax)
-res |= test_runner.test_export()
+res |= test_runner.run_export_test()
 # res |= test_runner.test_import()
 
 if res == 0:
