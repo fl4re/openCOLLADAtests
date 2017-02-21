@@ -6,7 +6,14 @@ from shutil import copy
 
 
 class Max(CADTool):
-    def __init__(self, version):
+    def __init__(self, version=None):
+        super(Max, self).__init__()
+        self.version = None
+        self.smax_path = None
+        if version is not None:
+            self.set_version(version)
+
+    def set_version(self, version):
         self.version = version
         self.smax_path = os.environ.get('ADSK_3DSMAX_x64_' + version)
         if self.smax_path is None:
@@ -23,14 +30,17 @@ class Max(CADTool):
             self.mayapy_path += '.exe'
             self.colladasmax_path += '.mll'
 
-    def name(self):
-        return 'colladamax'
+    def plugin_name(self):
+        return 'COLLADAMax'
+
+    def tool_name(self):
+        return '3DSMax'
 
     def path(self):
         return self.smax_path
 
-    def data_set_path(self):
-        return os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data_set')
+    def tests_path(self):
+        return os.path.join(os.path.dirname(os.path.realpath(__file__)), 'tests')
 
     def install_plugin(self):
         # TODO
@@ -59,4 +69,7 @@ class Max(CADTool):
 
     def import_file(self, input_file):
         # TODO
+        raise NotImplementedError('not implemented')
+
+    def default_export_options(self):
         raise NotImplementedError('not implemented')

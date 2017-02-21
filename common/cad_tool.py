@@ -7,12 +7,26 @@ from abc import ABCMeta, abstractmethod
 class CADTool(object):
     __metaclass__ = ABCMeta
 
+    registered_tools = []
+
+    def __init__(self):
+        super(CADTool, self).__init__()
+        CADTool.registered_tools.append(self)
+
     @abstractmethod
-    def name(self):
+    def set_version(self, version):
         raise NotImplementedError('not implemented')
 
     @abstractmethod
-    def data_set_path(self):
+    def plugin_name(self):
+        raise NotImplementedError('not implemented')
+
+    @abstractmethod
+    def tool_name(self):
+        raise NotImplementedError('not implemented')
+
+    @abstractmethod
+    def tests_path(self):
         raise NotImplementedError('not implemented')
 
     @abstractmethod
@@ -25,4 +39,8 @@ class CADTool(object):
 
     @abstractmethod
     def import_file(self, input_file):
+        raise NotImplementedError('not implemented')
+
+    @abstractmethod
+    def default_export_options(self):
         raise NotImplementedError('not implemented')

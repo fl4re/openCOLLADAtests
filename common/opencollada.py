@@ -18,10 +18,14 @@ class OpenCOLLADA:
         return OpenCOLLADA.opencolla_path
 
     @staticmethod
-    def validate(self, dae):
+    def validate(dae):
         if OpenCOLLADA.validator_path is None:
             validator_exe_name = 'DAEValidator'
             if get_platform() == 'windows':
                 validator_exe_name += '.exe'
             OpenCOLLADA.validator_path = find_file(OpenCOLLADA.path(), validator_exe_name, "Release")
-        return OpenCOLLADA.validator_path
+            if OpenCOLLADA.validator_path is None:
+                raise AssertionError('Cannot find ' + validator_exe_name + ' (Release)')
+        return run(
+            '"' + OpenCOLLADA.validator_path + '"' +
+            ' "' + dae + '"')

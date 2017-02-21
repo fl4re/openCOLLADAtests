@@ -6,7 +6,17 @@ from shutil import copy
 
 
 class Maya(CADTool):
-    def __init__(self, version):
+    def __init__(self, version=None):
+        super(Maya, self).__init__()
+        self.version = None
+        self.maya_path = None
+        self.export_script_path = None
+        self.colladamaya_path = None
+        self.mayapy_path = None
+        if version is not None:
+            self.set_version(version)
+
+    def set_version(self, version):
         self.version = version
         self.maya_path = os.environ.get('MAYA_PATH' + version + '_X64')
         if self.maya_path is None:
@@ -16,7 +26,8 @@ class Maya(CADTool):
                 self.maya_path = '/Applications/Autodesk/maya' + version
             else:
                 raise 'platform not supported: ' + get_platform()
-        self.export_script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'scripts' + os.path.sep + 'maya_export_script.py')
+        self.export_script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                               'scripts' + os.path.sep + 'maya_export_script.py')
         if get_platform() == 'windows':
             bin_path = os.path.join(self.maya_path, 'bin')
             plugins_path = os.path.join(bin_path, 'plug-ins')
@@ -32,14 +43,17 @@ class Maya(CADTool):
             self.mayapy_path += '.exe'
             self.colladamaya_path += '.mll'
 
-    def name(self):
-        return 'colladamaya'
+    def plugin_name(self):
+        return 'COLLADAMaya'
+
+    def tool_name(self):
+        return 'Maya'
 
     def path(self):
         return self.maya_path
 
-    def data_set_path(self):
-        return os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data_set')
+    def tests_path(self):
+        return os.path.join(os.path.dirname(os.path.realpath(__file__)), 'tests')
 
     def install_plugin(self):
         if get_platform() == 'windows':
@@ -81,3 +95,6 @@ class Maya(CADTool):
     def import_file(self, input_file):
         # TODO
         raise NotImplementedError('not implemented')
+
+    def default_export_options(self):
+        return 'bakeTransforms=1;exportLights=0'
