@@ -45,12 +45,12 @@ class TestRunner:
         return os.path.join(TestRunner._test_results_path(), dir_path[len(OpenCOLLADATests.path()) + 1:])
 
     @staticmethod
-    def _output_dae_from_input(input):
+    def output_dae_from_input(input):
         return os.path.join(TestRunner._output_dir_from_input_file(input), os.path.splitext(os.path.basename(input))[0] + '.dae')
 
     @staticmethod
-    def _output_xml_from_unit_test(input, class_name):
-        return os.path.join(TestRunner._output_dir_from_input_file(input), os.path.splitext(os.path.basename(input))[0] + '.' + class_name + '.xml')
+    def _output_xml_from_unit_test(input):
+        return os.path.join(TestRunner._output_dir_from_input_file(input), os.path.splitext(os.path.basename(input))[0] + '.xml')
 
     @staticmethod
     def _test_results_path():
@@ -79,7 +79,7 @@ class TestRunner:
         return self.tool.default_export_options()
 
     def _run_export_test_on_input(self, input):
-        output = self._output_dae_from_input(input)
+        output = self.output_dae_from_input(input)
         options = self._export_options_from_input(input)
         # Make sure output dir exists.
         out_dir = os.path.split(output)[0]
@@ -87,12 +87,19 @@ class TestRunner:
             os.makedirs(out_dir)
         if self.tool.export_file(input, output, options) != 0:
             return 1
+
+        res = 0
+
+        # Validate .dae
+        # TODO figure out why validator output is mixed with unit test output
+        res |= OpenCOLLADA.validate(output)
+
+        # Run potential unit tests
         input_dir = os.path.dirname(input)
         test_files = self.__class__._list_test_files(input_dir)
-        res = 0
-        res |= OpenCOLLADA.validate(output)
         for test_file in test_files:
             res |= self._run_test_cases(test_file)
+
         return res
 
     def _run_test_cases(self, test_file):
@@ -100,12 +107,11 @@ class TestRunner:
         base_module_path = self._base_module_path(test_file)
         module_name = os.path.splitext(os.path.basename(test_file))[0]
         module = importlib.import_module('.' + module_name, base_module_path)
-        for c in module.__dict__.values():
-            if inspect.isclass(c) and issubclass(c, unittest.TestCase) and c.__name__ != unittest.TestCase.__name__:
-                suite = unittest.TestLoader().loadTestsFromTestCase(c)
-                results = unittest.TextTestRunner(verbosity=1, resultclass=UnitTestResult).run(suite)
-                if not results.wasSuccessful():
-                    res |= 1
-                UnitTestResultConverter(results).to_junit_xml_file(
-                    module_name + '.' + c.__name__, self._output_xml_from_unit_test(test_file, c.__name__))
+        # Test methods must start with 'test_' string
+        suite = unittest.TestLoader().loadTestsFromModule(module)
+        if suite.countTestCases() > 0:
+            results = unittest.TextTestRunner(verbosity=1, resultclass=UnitTestResult).run(suite)
+            if not results.wasSuccessful():
+                res |= 1
+            UnitTestResultConverter(results).to_junit_xml_file(module_name, self._output_xml_from_unit_test(test_file))
         return res

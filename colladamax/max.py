@@ -21,15 +21,6 @@ class Max(CADTool):
 
         # TODO
 
-        #self.export_script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'maya_export_script.py')
-        bin_path = os.path.join(self.smax_path, 'bin')
-        plugins_path = os.path.join(bin_path, 'plug-ins')
-        self.colladasmax_path = os.path.join(plugins_path, 'COLLADAMaya')
-        #self.mayapy_path = os.path.join(bin_path, "mayapy")
-        if get_platform() == 'windows':
-            self.mayapy_path += '.exe'
-            self.colladasmax_path += '.mll'
-
     def plugin_name(self):
         return 'COLLADAMax'
 
@@ -40,7 +31,7 @@ class Max(CADTool):
         return self.smax_path
 
     def tests_path(self):
-        return os.path.join(os.path.dirname(os.path.realpath(__file__)), 'tests')
+        return os.path.join(os.path.dirname(os.path.normpath(os.path.realpath(__file__))), 'tests')
 
     def install_plugin(self):
         # TODO

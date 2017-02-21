@@ -26,7 +26,7 @@ class Maya(CADTool):
                 self.maya_path = '/Applications/Autodesk/maya' + version
             else:
                 raise 'platform not supported: ' + get_platform()
-        self.export_script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+        self.export_script_path = os.path.join(os.path.dirname(os.path.normpath(os.path.realpath(__file__))),
                                                'scripts' + os.path.sep + 'maya_export_script.py')
         if get_platform() == 'windows':
             bin_path = os.path.join(self.maya_path, 'bin')
@@ -53,7 +53,7 @@ class Maya(CADTool):
         return self.maya_path
 
     def tests_path(self):
-        return os.path.join(os.path.dirname(os.path.realpath(__file__)), 'tests')
+        return os.path.join(os.path.dirname(os.path.normpath(os.path.realpath(__file__))), 'tests')
 
     def install_plugin(self):
         if get_platform() == 'windows':
