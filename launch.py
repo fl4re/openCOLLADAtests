@@ -25,8 +25,8 @@ for tool in tools:
     first = False
 
 parser = ArgumentParser(description='OpenCOLLADA plugins tests')
-parser.add_argument('--tool', help='Plugin to test (' + plugins_str + ')')
-parser.add_argument('--version', help='Plugin version (2015, 2017...)')
+parser.add_argument('--tool', default='COLLADAMaya', help='Plugin to test (' + plugins_str + ')')
+parser.add_argument('--version', default='2015', help='Plugin version (2015, 2017...)')
 options = parser.parse_args()
 
 tested_tool = None

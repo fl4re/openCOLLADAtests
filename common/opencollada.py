@@ -9,6 +9,7 @@ class OpenCOLLADA:
     opencolla_path = None
     validator_path = None
 
+    # Returns path to OpenCOLLADA root directory.
     @staticmethod
     def path():
         if OpenCOLLADA.opencolla_path is None:
@@ -17,6 +18,7 @@ class OpenCOLLADA:
                 OpenCOLLADA.opencolla_path = os.path.normpath(os.path.join(OpenCOLLADATests.path(), '..' + os.path.sep + 'OpenCOLLADA'))
         return OpenCOLLADA.opencolla_path
 
+    # Runs DAEValidator tool against given DAE file.
     @staticmethod
     def validate(dae):
         if OpenCOLLADA.validator_path is None:

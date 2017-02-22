@@ -3,6 +3,9 @@ import unittest
 import xml.etree.ElementTree as Et
 
 
+#
+# Tracks test results and timings.
+#
 class UnitTestResult(unittest.TextTestResult):
     def __init__(self, stream, descriptions, verbosity):
         super(UnitTestResult, self).__init__(stream, descriptions, verbosity)
@@ -34,6 +37,9 @@ class UnitTestResult(unittest.TextTestResult):
         self.successes.append(test)
 
 
+#
+# Writes test results to an xml file with JUnit format.
+#
 class UnitTestResultConverter(object):
     def __init__(self, results):
         """

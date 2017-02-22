@@ -8,7 +8,7 @@ import shlex
 # Utility functions.
 #
 
-# Returns platform as string
+# Returns current platform as a string.
 def get_platform():
     if sys.platform == "win32":
         return "windows"
@@ -74,7 +74,7 @@ def ends_with(str, strs):
     return False
 
 
-# Lists files in root_dir.
+# Lists files in root_dir, recursively or not.
 def list_files(root_dir, exts, recursive):
     file_list = []
     for dirpath, dirnames, filenames in os.walk(root_dir):

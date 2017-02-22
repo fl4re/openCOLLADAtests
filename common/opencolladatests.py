@@ -7,6 +7,7 @@ import os
 class OpenCOLLADATests:
     opencolladatests_path = None
 
+    # Returns path to openCOLLADAtests root directory.
     @staticmethod
     def path():
         if OpenCOLLADATests.opencolladatests_path is None:
