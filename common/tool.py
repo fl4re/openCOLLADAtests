@@ -2,16 +2,16 @@ from abc import ABCMeta, abstractmethod
 
 
 #
-# Base class to implement to support new CAD software to test.
+# Base class to implement to support new software to test.
 #
-class CADTool(object):
+class Tool(object):
     __metaclass__ = ABCMeta
 
     registered_tools = []
 
     def __init__(self):
-        super(CADTool, self).__init__()
-        CADTool.registered_tools.append(self)
+        super(Tool, self).__init__()
+        Tool.registered_tools.append(self)
 
     @abstractmethod
     def set_version(self, version):

@@ -1,11 +1,11 @@
 from common.util import *
-from common.cad_tool import CADTool
+from common.tool import Tool
 from common.opencollada import OpenCOLLADA
 from common.opencolladatests import OpenCOLLADATests
 from shutil import copy
 
 
-class Max(CADTool):
+class Max(Tool):
     def __init__(self, version=None):
         super(Max, self).__init__()
         self.version = None

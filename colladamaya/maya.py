@@ -1,11 +1,11 @@
 from common.util import *
-from common.cad_tool import CADTool
+from common.tool import Tool
 from common.opencollada import OpenCOLLADA
 from common.opencolladatests import OpenCOLLADATests
 from shutil import copy
 
 
-class Maya(CADTool):
+class Maya(Tool):
     def __init__(self, version=None):
         super(Maya, self).__init__()
         self.version = None
