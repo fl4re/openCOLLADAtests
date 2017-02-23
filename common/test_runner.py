@@ -50,7 +50,7 @@ class TestRunner:
     def _output_dir_from_input_file(input):
         dir_path = os.path.dirname(os.path.normpath(input))
         if dir_path.find(OpenCOLLADATests.path()) != 0:
-            raise AssertionError(input + ' is not in a subdirectory of ' + OpenCOLLADATests.path())
+            raise Exception(input + ' is not in a subdirectory of ' + OpenCOLLADATests.path())
         # +1 to consume slash/backslash
         return os.path.join(TestRunner._test_results_path(), dir_path[len(OpenCOLLADATests.path()) + 1:])
 
@@ -80,7 +80,7 @@ class TestRunner:
     def _base_module_path(python_file):
         dir_path = os.path.dirname(os.path.normpath(python_file))
         if dir_path.find(OpenCOLLADATests.path()) != 0:
-            raise AssertionError(python_file + ' is not in a subdirectory of ' + OpenCOLLADATests.path())
+            raise Exception(python_file + ' is not in a subdirectory of ' + OpenCOLLADATests.path())
         # +1 to consume slash/backslash
         base_module_path = dir_path[len(OpenCOLLADATests.path()) + 1:]
         return base_module_path.replace(os.path.sep, '.')

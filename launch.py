@@ -21,17 +21,17 @@ first = True
 for tool in tools:
     if not first:
         plugins_str += ', '
-    plugins_str += tool.plugin_name()
+    plugins_str += tool.tool_name()
     first = False
 
 parser = ArgumentParser(description='OpenCOLLADA plugins tests')
-parser.add_argument('--tool', default='COLLADAMaya', help='Plugin to test (' + plugins_str + ')')
-parser.add_argument('--version', default='2015', help='Plugin version (2015, 2017...)')
+parser.add_argument('--tool', default='Maya', help='Tool to test (' + plugins_str + ')')
+parser.add_argument('--version', default='2015', help='Tool version (2015, 2017...)')
 options = parser.parse_args()
 
 tested_tool = None
 for tool in tools:
-    if tool.plugin_name() == options.tool:
+    if tool.tool_name() == options.tool:
         tested_tool = tool
         tested_tool.set_version(options.version)
         break

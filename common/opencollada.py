@@ -27,7 +27,7 @@ class OpenCOLLADA:
                 validator_exe_name += '.exe'
             OpenCOLLADA.validator_path = find_file(OpenCOLLADA.path(), validator_exe_name, "Release")
             if OpenCOLLADA.validator_path is None:
-                raise AssertionError('Cannot find ' + validator_exe_name + ' (Release)')
+                raise Exception('Cannot find ' + validator_exe_name + ' (Release)')
         return run(
             '"' + OpenCOLLADA.validator_path + '"' +
             ' "' + dae + '"')
