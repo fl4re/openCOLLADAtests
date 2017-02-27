@@ -1,0 +1,139 @@
+
+static const float WORLD_MUTIPLIER = 0.01f;
+
+
+float hash( float n )
+{
+    return frac(sin(n)*43758.5453);
+}
+
+float simplexNoise3d( float3 x, float randomization )
+{
+    // 	Simplex noise function from:
+	//
+	//  http://stackoverflow.com/questions/15628039/simplex-noise-shader/18424432#18424432
+	//
+	//	The simplexNoise3d function returns a value in the range -1.0f -> 1.0f
+
+	x += float3(randomization * 7, randomization * 55, randomization * 543);
+    float3 p = floor(x);
+    float3 f = frac(x);
+
+    f       = f*f*(3.0-2.0*f);
+    float n = p.x + p.y*57.0 + 113.0*p.z;
+
+    return lerp(lerp(lerp( hash(n+0.0), hash(n+1.0),f.x),
+                   lerp( hash(n+57.0), hash(n+58.0),f.x),f.y),
+               lerp(lerp( hash(n+113.0), hash(n+114.0),f.x),
+                   lerp( hash(n+170.0), hash(n+171.0),f.x),f.y),f.z);
+}
+
+float3 ToLinear(float3 c)
+{
+    return pow(c,vec3(2.2,2.2,2.2));
+}
+
+float3 ToSrgb(float3 c)
+{
+	return pow(c,vec3(0.4545,0.4545,0.4545));
+}
+
+float4 Rgbe2Hdr ( float4 rgbe )
+{
+	const float RGBE_FIXED_OFFSET = 8.0f;
+	float expo = rgbe.a*255.0 - 128.0;
+	expo /= RGBE_FIXED_OFFSET;
+	float d = exp2(expo);
+	return float4 ( rgbe.rgb * float3(d), 1.0 );
+}
+
+float3 DecodeNormalTexture( float2 tex )
+{
+    float2 xy = tex.xy * 2 - 1;
+    return float3( xy, sqrt ( max( 0, 1 - dot( xy, xy ) ) ) );
+}
+
+float3 BlendAndMixNormals( float2 tex1, float2 tex2, float blendFactor, float mixFactor )
+{
+	float2 blended = lerp( tex1, tex2, blendFactor );
+	float3 normal = float3( blended, sqrt ( saturate( 1 - dot( blended, blended ) ) ) );
+	if( mixFactor >= 0.0f )
+		normal.xy += tex1 * mixFactor * blendFactor;
+	else
+		normal.xy += tex2 * -mixFactor * ( 1.0f - blendFactor );
+
+	return normalize( normal );
+}
+
+float2 ParallaxOffset( float2 uv, float3 view, float3x3 TBN, float2 scaleBias, sampler2D parallaxMap )
+{
+	float3 eyevec;
+	eyevec.x = dot ( TBN[0], -view );
+	eyevec.y = dot ( TBN[1], -view );
+	eyevec.z = dot ( TBN[2], -view );
+    // pass 1
+    float height = tex2D( parallaxMap, uv ).r * scaleBias.x * 0.5 + scaleBias.y;
+    uv += eyevec.xy*height;
+    // pass 2
+    height = tex2D( parallaxMap, uv ).r * scaleBias.x * 0.5;
+    uv += eyevec.xy*height;
+    
+	return uv;
+}
+
+
+float ExpContrast ( float in_value, float contrast_value )
+{
+   	float result = pow ( in_value, contrast_value );
+    return result;
+}
+
+float Overlay(float blend, float base)
+{
+	return (base < 0.5 ? (2.0 * base * blend) : (1.0 - 2.0 * (1.0 - base) * (1.0 - blend)));
+}
+
+float CrossBlendFactor ( float mapA, float mapB, float mask, float3 BlendParams )
+{
+	mask = Overlay( BlendParams.z, mask );
+	float blendMask = 1.0f - lerp( mapA, mapB, BlendParams.x );
+
+	float sharpness = BlendParams.y * 2 - 1;
+	float height = 1 / ( 1.001 - sharpness );
+	float final = saturate( height * ( blendMask + mask ) + mask - height );
+	return lerp( final, mask, saturate( -sharpness ) );
+}
+
+float3x3 CotangentFrame( float3 N, float3 p, float2 uv )
+{
+    // get edge vectors of the pixel triangle
+    float3 dp1 = ddx( p );
+    float3 dp2 = ddy( p );
+    float2 duv1 = ddx( uv );
+    float2 duv2 = ddy( uv );
+
+    // solve the linear system
+    float3 dp2perp = cross( dp2, N );
+    float3 dp1perp = cross( N, dp1 );
+    float3 T = dp2perp * duv1.x + dp1perp * duv2.x;
+    float3 B = dp2perp * duv1.y + dp1perp * duv2.y;
+ 
+#if GAPI_DIRECTX12
+	// change directions according to different UV mapping scheme
+	T = -T;
+	B = -B;
+#endif
+
+    // construct a scale-invariant frame 
+    float invmax = inversesqrt( max( dot(T,T), dot(B,B) ) + 1e-20f ); // add a bit to prevent negative
+    return float3x3( T * invmax, B * invmax, N );
+}
+
+
+float2x2 UvSpacesTransformation( float2 fromUV, float2 toUV )
+{
+	float2x2 duvTo = float2x2( normalize( ddx( toUV ) ), normalize( ddy( toUV ) ) );
+	float2x2 duvFrom = float2x2( normalize( ddx( fromUV ) ), normalize( ddy( fromUV ) ) );
+
+	return mul( transpose( duvTo ), duvFrom );
+}

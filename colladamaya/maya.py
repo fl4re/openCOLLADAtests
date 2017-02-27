@@ -12,6 +12,7 @@ class Maya(Tool):
         self.maya_path = None
         self.export_script_path = None
         self.colladamaya_path = None
+        self.mayaexe_path = None
         self.mayapy_path = None
         if version is not None:
             self.set_version(version)
@@ -38,8 +39,10 @@ class Maya(Tool):
             self.colladamaya_path = os.path.join(plugins_path, 'OpenCOLLADA' + os.path.sep + 'COLLADAMaya')
         else:
             raise Exception('Unsupported platform: ' + get_platform())
-        self.mayapy_path = os.path.join(bin_path, "mayapy")
+        self.mayaexe_path = os.path.join(bin_path, 'maya')
+        self.mayapy_path = os.path.join(bin_path, 'mayapy')
         if get_platform() == 'windows':
+            self.mayaexe_path += '.exe'
             self.mayapy_path += '.exe'
             self.colladamaya_path += '.mll'
 
@@ -84,17 +87,62 @@ class Maya(Tool):
         return ['.ma', '.mb']
 
     def export_file(self, input_file, output_file, options):
-        return run(
-            '"' + self.mayapy_path + '"' +
-            ' "' + self.export_script_path + '"' +
-            ' "' + self.colladamaya_path + '"' +
-            ' "' + input_file + '"' +
-            ' "' + output_file + '" ' +
-            options, OpenCOLLADATests.path())
+        export_options = options.get('export_options')
+        if export_options is None:
+            export_options = self.default_export_options()['export_options']
+
+        use_mayapy = options.get('mayapy')
+        if use_mayapy is None:
+            use_mayapy = self.default_export_options()['mayapy']
+
+        if use_mayapy:
+            return run(
+                '"' + self.mayapy_path + '"' +
+                ' "' + self.export_script_path + '"' +
+                ' "' + self.colladamaya_path + '"' +
+                ' "' + input_file + '"' +
+                ' "' + output_file + '" ' +
+                export_options,
+                OpenCOLLADATests.path()
+            )
+        else:
+            # Launch Maya.exe with -script option.
+            mel_path = os.path.splitext(output_file)[0] + '.mel'
+
+            f = open(mel_path, 'w')
+            f.write('loadPlugin')
+            f.write(' "' + self.colladamaya_path + '";\n')
+            f.write('string $opencollada_test_dir;\n')
+            f.write('$opencollada_test_dir=`pwd`;\n')
+            f.write('setProject $opencollada_test_dir;\n')
+            f.write('file -f -o')
+            f.write(' "' + input_file + '";\n')
+            f.write('refresh;\n')
+            f.write('file -f -type')
+            f.write(' "OpenCOLLADA exporter"')
+            f.write(' -op')
+            f.write(' "' + export_options + '"')
+            f.write(' -ea ')
+            f.write('"' + output_file + '.dae";\n')
+            f.write('quit -f -a;\n')
+            f.close()
+
+            res = run(
+                '"' + self.mayaexe_path + '"' +
+                ' -script ' + mel_path,
+                OpenCOLLADATests.path()
+            )
+
+            os.remove(mel_path)
+
+            return res
 
     def import_file(self, input_file):
         # TODO
         raise NotImplementedError('not implemented')
 
     def default_export_options(self):
-        return 'bakeTransforms=1;exportLights=0'
+        return {
+            'export_options': 'bakeTransforms=1;exportLights=0',
+            'mayapy': True
+        }

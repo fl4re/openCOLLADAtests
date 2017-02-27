@@ -109,6 +109,7 @@ class TestRunner:
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
         if self.tool.export_file(input, output, options) != 0:
+            print 'Export FAILED'
             return 1
 
         res = 0
