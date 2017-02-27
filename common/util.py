@@ -21,7 +21,7 @@ def get_platform():
 
 
 # Runs a subprocess.
-def run(command_line, working_directory=None, check_exit_code=False):
+def run(command_line, working_directory=None):
     environ = os.environ
 
     if working_directory is None:
@@ -38,17 +38,12 @@ def run(command_line, working_directory=None, check_exit_code=False):
                                    stderr=subprocess.STDOUT,
                                    shell=False
                                    )
-        for line in iter(process.stdout.readline, ''):
-            # unmodified_line = line
-            line = line.rstrip()
-            print line
-            sys.stdout.flush()
-            # out += unmodified_line
-        process.stdout.close()
-        process.wait()
-        if check_exit_code and process.returncode != 0:
-            raise Exception("Error while running command:\n{}\nin:\n{}".format(command_line, working_directory))
-        return process.returncode  # , out
+        stdout, stderr = process.communicate(None)
+        if stdout is not None:
+            print stdout
+        if stderr is not None:
+            print stderr
+        return process.returncode
     except IOError as (error, strerror):
         del error, strerror
         raise
