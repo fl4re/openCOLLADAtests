@@ -83,3 +83,4 @@ openCOLLADAtests
 
   4. Have a look to UnitTest_camera.py to understand how to create your unitTest python file
 	UnitTest will validate your plugin with DOM parser
+	k
