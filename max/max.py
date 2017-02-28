@@ -76,4 +76,4 @@ class Max(Tool):
         raise NotImplementedError('not implemented')
 
     def default_export_options(self):
-        return ''
+        return {}
