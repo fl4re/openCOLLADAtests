@@ -96,42 +96,38 @@ class Maya(Tool):
             use_mayapy = self.default_export_options()['mayapy']
 
         if use_mayapy:
+            # Run Maya without UI.
             return run(
                 '"' + self.mayapy_path + '"' +
                 ' "' + self.export_script_path + '"' +
                 ' "' + self.colladamaya_path + '"' +
                 ' "' + input_file + '"' +
                 ' "' + output_file + '" ' +
-                export_options,
-                OpenCOLLADATests.path()
+                export_options
             )
         else:
-            # Launch Maya.exe with -script option.
+            # Run Maya with UI (required to use cgfx for example)
             mel_path = os.path.splitext(output_file)[0] + '.mel'
 
             f = open(mel_path, 'w')
             f.write('loadPlugin')
-            f.write(' "' + self.colladamaya_path + '";\n')
+            f.write(' "' + self.colladamaya_path.replace('\\', '/') + '";\n')
             f.write('string $opencollada_test_dir;\n')
-            f.write('$opencollada_test_dir=`pwd`;\n')
+            f.write('$opencollada_test_dir="' + os.path.dirname(input_file).replace('\\', '/') + '";\n')
             f.write('setProject $opencollada_test_dir;\n')
             f.write('file -f -o')
-            f.write(' "' + input_file + '";\n')
+            f.write(' "' + input_file.replace('\\', '/') + '";\n')
             f.write('refresh;\n')
             f.write('file -f -type')
             f.write(' "OpenCOLLADA exporter"')
             f.write(' -op')
             f.write(' "' + export_options + '"')
             f.write(' -ea ')
-            f.write('"' + output_file + '.dae";\n')
+            f.write('"' + output_file.replace('\\', '/') + '.dae";\n')
             f.write('quit -f -a;\n')
             f.close()
 
-            res = run(
-                '"' + self.mayaexe_path + '"' +
-                ' -script ' + mel_path,
-                OpenCOLLADATests.path()
-            )
+            res = run('"' + self.mayaexe_path + '" -script "' + mel_path + '"')
 
             os.remove(mel_path)
 

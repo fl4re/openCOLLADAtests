@@ -13,4 +13,5 @@ class Test_CgFx(common.test_case_base.TestCaseBase):
         self.assertEqual(node.attrib['id'], 'mat_test-fx')
 
         include = self.get_element_by_tag(node, 'collada:profile_CG/collada:include')
+        self.assertIsNotNone(include)
         self.assertEqual(include.attrib['url'], './CgFx/valhallaPhysBasedCrossBlend.cgfx')

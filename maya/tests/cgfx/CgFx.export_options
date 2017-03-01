@@ -1,5 +1,0 @@
-
-{
-	'export_options' : 'bakeTransforms=1;relativePaths=1;preserveSourceTree=0;copyTextures=0;exportTriangles=0;exportCgfxFileReferences=1;isSampling=0;curveConstrainSampling=0;removeStaticCurves=1;exportPhysics=0;exportConvexMeshGeometries=0;exportPolygonMeshes=1;exportLights=1;exportCameras=0;exportAnimationsOnly=0;exportSeparateFile=0;modelNameDAE=;exportJoints=1;exportSkin=1;exportAnimations=1;exportOptimizedBezierAnimation=0;exportInvisibleNodes=0;exportDefaultCameras=0;exportTexCoords=1;exportNormals=1;exportNormalsPerVertex=1;exportVertexColors=1;exportVertexColorsPerVertex=1;exportTexTangents=1;exportTangents=1;exportReferencedMaterials=0;exportMaterialsOnly=0;exportXRefs=1;dereferenceXRefs=1;exportCameraAsLookat=0;cameraXFov=0;cameraYFov=1;doublePrecision=0',
-	'mayapy': False
-}
