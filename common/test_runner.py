@@ -1,7 +1,7 @@
 import importlib
-import inspect
 from opencollada import OpenCOLLADA
 from opencolladatests import OpenCOLLADATests
+import shutil
 import unittest
 from unittest_result_converter import UnitTestResult
 from unittest_result_converter import UnitTestResultConverter
@@ -24,6 +24,10 @@ class TestRunner:
     # DAE is validated with DAEValidator tool and potential unit tests are executed.
     def run_export_test(self):
         res_path = self._test_results_path()
+
+        if os.path.exists(res_path):
+            shutil.rmtree(res_path)
+
         if not os.path.exists(res_path):
             os.makedirs(res_path)
 
