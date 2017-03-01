@@ -142,3 +142,6 @@ class Maya(Tool):
             'export_options': 'bakeTransforms=1;exportLights=0',
             'mayapy': True
         }
+
+    def is_supported(self):
+        return True

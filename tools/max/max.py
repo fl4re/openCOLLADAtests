@@ -7,9 +7,6 @@ from shutil import copy
 
 class Max(Tool):
     def __init__(self, version=None):
-        # 3DSMax is Windows only.
-        if get_platform() != 'windows':
-            raise Exception('3DSMax is available on Windows only.')
         super(Max, self).__init__()
         self.version = None
         self.smax_path = None
@@ -77,3 +74,6 @@ class Max(Tool):
 
     def default_export_options(self):
         return {}
+
+    def is_supported(self):
+        return get_platform() == 'windows'

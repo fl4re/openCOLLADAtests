@@ -52,3 +52,8 @@ class Tool(object):
     @abstractmethod
     def default_export_options(self):
         raise NotImplementedError('not implemented')
+
+    # Returns whether this tool is supported on current platform.
+    @abstractmethod
+    def is_supported(self):
+        raise NotImplementedError('not implemented')

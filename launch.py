@@ -19,10 +19,11 @@ tools = [
 plugins_str = ''
 first = True
 for tool in tools:
-    if not first:
-        plugins_str += ', '
-    plugins_str += tool.tool_name()
-    first = False
+    if tool.is_supported():
+        if not first:
+            plugins_str += ', '
+        plugins_str += tool.tool_name()
+        first = False
 
 parser = ArgumentParser(description='OpenCOLLADA plugins tests')
 parser.add_argument('--tool', default='Maya', help='Tool to test (' + plugins_str + ')')
