@@ -108,11 +108,6 @@ class TestRunner:
     def _run_export_test_on_input(self, input):
         output = self.output_dae_from_input(input)
         options = self._export_options_from_input(input)
-        disabled = options.get('disabled')
-        if disabled is not None and disabled:
-            print 'Skipped ' + input
-            return 0
-        
         # Make sure output dir exists.
         out_dir = os.path.split(output)[0]
         if not os.path.exists(out_dir):
