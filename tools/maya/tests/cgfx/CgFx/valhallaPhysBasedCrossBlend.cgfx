@@ -1,0 +1,633 @@
+#include "common.cgfx"
+#include "pbr.cgfx"
+
+string description = "Blend with Red Vertex color, blend masks in gloss alphas, Blend on second Uvset";
+
+
+
+/////////////////////// Usage and Requirments ///////////////////////////////////
+//	Mesh 
+//		Second UV set ( used for mapping the second texture set)
+//		Vertex color set
+//			R - Main blend influence
+//			G - Mask for simplexNoise3d additional blend influence
+//			B - Offset of tint gradient vertically
+//			A - Controls metallness additions (>0.5) and gradient offset masking (<=0.25 and >=0.75)
+//		Textures
+//			First Rough Texture
+//				R - First Roughness mask
+//				G - Gradient Mask. (grayscale mask for gradient x mapping)
+//				B - unused
+//				A - First Texture Blend Mask
+//			Second Rough Texture
+//				R - Second Roughness mask
+//				G - unused
+//				B - unused
+//				A - Second Texture Blend Mask
+//
+//			Gradient Tint Texture
+//				Texture with stacked gradients in y used to "overlay-tint" (mull2x) the first albedo before blended.
+//				Row of gradient is determined by the vertColor blue channel. This way artist can tint to different colors on the same mesh (character clothes elements, bathroom tiles in different colors)
+//				The user then has ability to offset that value to pick another 
+//				row via a slider and that way tint another color(s). (E.g. different colors on cars, buildings , zombie clothes)
+//				The alpha channel of the gradient texture is also modulating the gloss texture via same overlay technique and can make the 
+//				gloss texture brighter or darker
+//				Number of stacked gradients is inputed as a parameter to shader and the users offseted value is calculated via this value.
+//				Further, the blue vert value can be offsetted via noise function and sample the gradient texture higher within the gradient row
+//				making it possible to get color variation breakups based on world position. Great for breaking up tiling with modular meshes. (E.g. Buildings brick or stucco, grass fields etc.)
+//				
+//			Simplex simplexNoise3d Modulation
+//				simplexNoise3d3d is a function that returns a simplexNoise3d value for a point in the world. Inputs are world position (xyz).
+//				Add to blend influences via 3d simplexNoise3d. "Paint" simplexNoise3d mask via vertex green channel and have 3d simplexNoise3d add blend influence value based on the world position of the vertex.
+//				Add value to Color Tint Set Gradient Texture lookup. Variate the position of the coordinate in x (u) based on 3d simplexNoise3d value.
+/////////////////
+
+
+
+// Runtime params
+///////////////////
+
+float4x4 WorldViewProjection   : WorldViewProjection       < string UIWidget = "None"; >;
+float4x4 WorldInverseTranspose : WorldInverseTranspose     < string UIWidget = "None"; >;
+float4x4 ViewInverse           : ViewInverse               < string UIWidget = "None"; >;
+float4x4 World                 : World                     < string UIWidget = "None"; >;
+
+texture CubeTexture < string ResourceName = ""; string ResourceType = "Cube"; >;
+samplerCUBE EnvCubeTexture	= sampler_state {Texture = <CubeTexture>; minFilter = LinearMipMapLinear; magFilter = Linear; WrapS = ClampToEdge; WrapT = ClampToEdge; MaxMipLevel = 5; };
+bool UseIBL = false;
+
+float4 LightDir : DIRECTION < string UIName = "Light Direction"; string Space = "World"; > = {0.0,-1.0,-1.0,0.0};
+float3 LightColor : Diffuse	< string UIName = "Light Color"; string UIWidget = "Color"; > = {1.0f, 1.0f, 1.0f};
+float3 RimLightColor : Diffuse 	< string UIName = "Rim Light Color"; string UIWidget = "Color"; > = {0.2, 0.2, 0.2};
+float3 AmbientColor  : Diffuse	< string UIName = "Ambient Light Color"; string Type = "Color"; > = {0.1, 0.1, 0.1};
+
+// Material params
+///////////////////
+
+bool RoughnessPipe = false;
+
+texture DiffuseTexture 		< string ResourceName = ""; string ResourceType = "2D"; >;
+texture NormalTexture 		< string ResourceName = ""; string ResourceType = "2D"; >;
+texture MetalnessTexture 	< string ResourceName = ""; string ResourceType = "2D"; >;
+texture GlossTexture 		< string ResourceName = ""; string ResourceType = "2D"; >;
+texture RoughTexture 		< string ResourceName = ""; string ResourceType = "2D"; >;
+texture AoTexture 			< string ResourceName = ""; string ResourceType = "2D"; >;
+
+texture DiffuseTexture2 	< string ResourceName = ""; string ResourceType = "2D"; >;
+texture NormalTexture2 		< string ResourceName = ""; string ResourceType = "2D"; >;
+texture MetalnessTexture2 	< string ResourceName = ""; string ResourceType = "2D"; >;
+texture GlossTexture2 		< string ResourceName = ""; string ResourceType = "2D"; >;
+texture RoughTexture2 		< string ResourceName = ""; string ResourceType = "2D"; >;
+texture AoTexture2			< string ResourceName = ""; string ResourceType = "2D"; >;
+
+sampler2D DiffuseMap	= sampler_state {Texture = <DiffuseTexture>; 	minFilter = LinearMipMapLinear; magFilter = Linear; };
+sampler2D NormalMap 	= sampler_state {Texture = <NormalTexture>; 	minFilter = LinearMipMapLinear; magFilter = Linear; };
+sampler2D MetalnessMap	= sampler_state {Texture = <MetalnessTexture>;	minFilter = LinearMipMapLinear; magFilter = Linear; };
+sampler2D GlossMap 		= sampler_state {Texture = <GlossTexture>;		minFilter = LinearMipMapLinear; magFilter = Linear; };
+sampler2D RoughMap 		= sampler_state {Texture = <RoughTexture>;		minFilter = LinearMipMapLinear; magFilter = Linear; };
+sampler2D AoMap 		= sampler_state {Texture = <AoTexture>; 		minFilter = LinearMipMapLinear; magFilter = Linear; };
+
+sampler2D DiffuseMap2   = sampler_state {Texture = <DiffuseTexture2>; 	minFilter = LinearMipMapLinear; magFilter = Linear; };
+sampler2D NormalMap2 	= sampler_state {Texture = <NormalTexture2>; 	minFilter = LinearMipMapLinear; magFilter = Linear; };
+sampler2D MetalnessMap2 = sampler_state {Texture = <MetalnessTexture2>; minFilter = LinearMipMapLinear; magFilter = Linear; };
+sampler2D GlossMap2 	= sampler_state {Texture = <GlossTexture2>; 	minFilter = LinearMipMapLinear; magFilter = Linear; };
+sampler2D RoughMap2 	= sampler_state {Texture = <RoughTexture2>;		minFilter = LinearMipMapLinear; magFilter = Linear; };
+sampler2D AoMap2 		= sampler_state {Texture = <AoTexture2>; 		minFilter = LinearMipMapLinear; magFilter = Linear; };
+
+float3 TintColor < string UIName = "Tint Color(for 2nd)"; string Type = "Color"; > = {0.5,0.5,0.5};
+float Metalness < string UIName = "Metalness"; float UIMin = 0.0; float UIMax = 1.0; float UIStep = 0.01; > = 0.0;
+float Metalness2 < string UIName = "Metalness2"; float UIMin = 0.0; float UIMax = 1.0; float UIStep = 0.01; > = 0.0;
+float Transparency < string UIName = "Transparency"; float UIMin = 0.0; float UIMax = 1.0; float UIStep = 0.01; > = 1.0;
+
+texture ParallaxTexture 	< string ResourceName = ""; string ResourceType = "2D"; >;
+sampler2D ParallaxMap 		= sampler_state {Texture = <ParallaxTexture>; 	minFilter = LinearMipMapLinear; magFilter = Linear; };
+float ParallaxScale < string UIName = "Parallax Scale"; float UIMin = 0.0; float UIMax = 0.1; float UIStep = 0.001; > = 0.0;
+float ParallaxBias < string UIName = "Parallax Bias"; float UIMin = -0.1; float UIMax = 0.1; float UIStep = 0.001; > = 0.0;
+
+float2 Uv0Scale < string UIName = "UV0 Scale"; > = {1.0,1.0};
+float2 Uv1Scale < string UIName = "UV1 Scale"; > = {1.0,1.0};
+int Uv1Type < string UIName	= "UV1 type (uv1|uv0|zx)"; int UIMin = 0; int UIMax = 2; > = 1;
+
+float BlendMasksMix < string UIName = "Blend Masks Mix"; float UIMin = 0.0; float UIMax = 1.0; float UIStep = 0.01; > = 0.5;
+float BlendMasksSharpness < string UIName = "Blend Masks Sharpness"; float UIMin = 0.0; float UIMax = 1.0; float UIStep = 0.01; > = 0.5;
+float BlendBias < string UIName = "Blend Bias"; float UIMin = 0.0; float UIMax = 2.0; float UIStep = 0.01; > = 0.5;
+float NormalsMix < string UIName = "Normals Mix"; float UIMin = -1.0; float UIMax = 1.0; float UIStep = 0.01; > = 0.0;
+
+bool useBlendNoise < string UIName	= "Add Blend Mask noise"; > = false;
+
+float blendNoiseScale < string UIName = "Blend Noise Tiling"; float UIMin = 0.0; float UIMax = 1.0; float UIStep = 0.01; > = 0.5;
+float blendNoiseCurve < string UIName = "Blend Noise Exp Curve"; float UIMin = 1.0; float UIMax = 8.0; float UIStep = 0.01; > = 1.0;
+float blendNoiseContrast < string UIName = "Blend Noise Gain"; float UIMin = 0.01; float UIMax = 8.0; float UIStep = 0.01; > = 1.0;
+
+bool useTintGradient <
+		string UIName	= "Use Tint Color Gradient";
+	> = false;
+
+texture GradientTexture		< string ResourceName = ""; string ResourceType = "2D"; >;
+sampler2D Gradient			= sampler_state {Texture = <GradientTexture>; minFilter = Linear; magFilter = Linear; WrapS = ClampToEdge; WrapT = ClampToEdge; MipMapLodBias = -1.0; };
+
+float NumberOfGradients 	< string UIName = "Number of Color Set"; float UIMin = 1.0; float UIMax = 16.0; float UIStep = 1.0; > = 1.0;
+float GradientOffset		< string UIName = "Color Set Offset"; float UIMin = 0.0; float UIMax = 16.0; float UIStep = 0.02; > = 0.0;
+
+bool useGradientTintNoise <
+		string UIName	= "Use Tint Color Gradient Noise";
+	> = false;
+
+float gradientNoiseScale < string UIName = "Gradient Noise Tiling"; float UIMin = 0.0; float UIMax = 1.0; float UIStep = 0.01; > = 0.5;
+float gradientNoiseCurve < string UIName = "Gradient Noise Exp Curve"; float UIMin = 1.0; float UIMax = 8.0; float UIStep = 0.01; > = 1.0;
+float gradientNoiseContrast < string UIName = "Gradient Noise Gain"; float UIMin = 0.01; float UIMax = 8.0; float UIStep = 0.01; > = 1.0;
+
+bool TwoSided = false;
+bool AlphaTest = false;
+bool NotInMainPass = false;
+bool NotCastShadow = false;
+bool Occluder = false;
+
+float instanceBlendMasking < string UIName = "PerInstance Blend Masking"; float UIMin = 0.00; float UIMax = 1.0; float UIStep = 0.01; > = 0.0;
+float instanceUv2Offset < string UIName = "PerInstance Uv2 Offset"; float UIMin = 0.00; float UIMax = 1.0; float UIStep = 0.01; > = 0.0;
+float instanceGradientOffset < string UIName = "PerInstance Gradient Offset"; float UIMin = 0.00; float UIMax = 1.0; float UIStep = 0.01; > = 0.0;
+float instanceGradMasking < string UIName = "PerInstance Gradient Masking"; float UIMin = 0.00; float UIMax = 1.0; float UIStep = 0.01; > = 0.0;
+
+float noiseRandomization < string UIName = "Noise Randomization"; float UIMin = 0.00; float UIMax = 1.0; float UIStep = 0.01; > = 0.0;
+
+string Resource = "";
+
+// in-out
+///////////////////
+
+struct app2vert {
+	float4 Position		: POSITION; //in projection space
+	float4 Normal		: NORMAL;
+	float4 Color		: COLOR;
+	float2 texcoord0	: TEXCOORD0;
+	float2 texcoord1	: TEXCOORD1;
+};
+
+struct vert2pixel {
+	float4 pos			: POSITION;
+	float4 Color		: COLOR0;
+	float4 OrigColor	: COLOR1;
+	float3 normal		: TEXCOORD0;
+	float3 view			: TEXCOORD1;
+	float4 tex			: TEXCOORD2;
+	float3 worldCoords	: TEXCOORD3;
+	float3 noiseForPixel: TEXCOORD4;
+};
+
+// VS
+///////////////
+
+vert2pixel VS(app2vert i)
+{
+	vert2pixel o;
+	
+	o.normal   = mul(WorldInverseTranspose, i.Normal).xyz;
+	
+	i.Color = saturate( i.Color );
+	o.OrigColor = i.Color;
+
+	o.pos = mul(WorldViewProjection, i.Position);
+	float3 worldSpacePos = mul(World, i.Position).xyz;
+	float3 worldCameraPos = float3(ViewInverse[0].w,ViewInverse[1].w,ViewInverse[2].w);
+	
+	float noise1 = simplexNoise3d(worldSpacePos * blendNoiseScale * WORLD_MUTIPLIER, noiseRandomization);
+	float noise2 = simplexNoise3d(worldSpacePos * gradientNoiseScale * WORLD_MUTIPLIER, noiseRandomization);
+
+	if (useBlendNoise)
+	{
+		noise1 = saturate(pow(noise1,blendNoiseCurve) * blendNoiseContrast);
+		i.Color.r += noise1 * i.Color.g;
+	}
+
+	i.Color.r = saturate( i.Color.r - instanceBlendMasking );
+	
+	if (useTintGradient)
+	{
+		float invGradientsNumber =  ( 1.0 / NumberOfGradients );
+		
+		float pixelOffset =  ( 1.0 / 256.0 ); // need one pixel offset to not sample between pixels, may be a cleaner way of solving this so its not dependent on gradient resolution
+		float shiftedRange = i.Color.a * 2.0 - 1.0; // Hax cause engine or exporter clamps vert col values between 0-1
+		float offsetMask = abs(shiftedRange) >= 0.5 ? 1 : 0; // If vert alpha is above 0.25 and below 0.75, don't offset gradient with parameter or world offset
+
+		GradientOffset += floor( instanceGradientOffset * NumberOfGradients );
+		GradientOffset *= offsetMask;
+
+		float gradCenter = frac( ( floor( (i.Color.b + pixelOffset) * NumberOfGradients ) + floor( GradientOffset ) + 0.5 ) * invGradientsNumber);
+		i.Color.b = frac( i.Color.b + GradientOffset * invGradientsNumber + pixelOffset );
+
+		if (useGradientTintNoise)
+			instanceGradMasking = saturate(instanceGradMasking + pow( noise2, gradientNoiseCurve) * gradientNoiseContrast);
+
+		i.Color.b = lerp( i.Color.b, gradCenter, instanceGradMasking );
+	}
+	
+	o.noiseForPixel = float3(noise1 * i.Color.g,noise2,0);
+	o.worldCoords = worldSpacePos;
+	o.view = worldCameraPos - worldSpacePos;
+	o.tex.xy = i.texcoord0 * Uv0Scale;
+	o.tex.zw = Uv1Scale;
+	if( Uv1Type == 0 )
+		o.tex.zw *= i.texcoord1;
+	else if( Uv1Type == 1 )
+		o.tex.zw *= i.texcoord0;
+	else if( Uv1Type == 2 )
+		o.tex.zw *= worldSpacePos.xz * WORLD_MUTIPLIER * 0.5;
+	o.tex.zw += instanceUv2Offset.xx;
+	
+	o.Color = i.Color;
+	return o;
+}
+
+// PS
+///////////////
+
+float4 PSShaded(vert2pixel i, int debugOutput)
+{
+	float3 worldPos = i.worldCoords;
+	float3 viewDirection = normalize( i.view );
+	
+	float2 tex0 = i.tex.xy;
+	float2 tex1 = i.tex.zw;
+
+	float3x3 TBN = CotangentFrame( i.normal, worldPos, tex0 );
+
+	tex0 = ParallaxOffset( tex0, viewDirection, TBN, float2( ParallaxScale, ParallaxBias ), ParallaxMap );
+
+	/// Texture Sampling   //
+
+	float3 albedo_tex1 = ToLinear( tex2D( DiffuseMap, tex0 ).rgb );
+	float3 albedo_tex2 = ToLinear( tex2D( DiffuseMap2, tex1 ).rgb );
+
+	float4 rough_tex1 = tex2D( RoughMap, tex0 );
+	float4 rough_tex2 = tex2D( RoughMap2, tex1 );
+	if( !RoughnessPipe )
+	{
+		rough_tex1 = tex2D( GlossMap, tex0 );
+		rough_tex2 = tex2D( GlossMap2, tex1 );
+
+		rough_tex1.x = GlossinessToRoughness( rough_tex1.x );
+		rough_tex2.x = GlossinessToRoughness( rough_tex2.x );
+	}
+
+	float3 normal_tex1 =  tex2D( NormalMap, tex0 ).xyz;
+	if( dot( normal_tex1, float3( 1, 1, 1 ) ) == 3.0f )
+		normal_tex1 = float3( 0.5, 0.5, 1 );
+
+	float3 normal_tex2 =  tex2D( NormalMap2, tex1 ).xyz;
+	if( dot( normal_tex2, float3( 1, 1, 1 ) ) == 3.0f )
+		normal_tex2 = float3( 0.5, 0.5, 1 );
+	
+	float metalness_tex1 = tex2D( MetalnessMap, tex0 ).r * Metalness;
+	float metalness_tex2 = tex2D( MetalnessMap2, tex1 ).r * Metalness2;
+	
+	metalness_tex1 = saturate( metalness_tex1 + ( i.Color.a > 0.5f ? 1 : 0 ) );
+	
+	float ao_tex1 = tex2D( AoMap, tex0 ).r;
+	float ao_tex2 = tex2D( AoMap2, tex1 ).r;
+	
+	float4 gradient_Tex = float4(0.5, 0.5, 0.5, 0.5);
+	if (useTintGradient)
+	{
+		gradient_Tex = tex2D( Gradient, float2(rough_tex1.y, i.Color.b ) );
+		albedo_tex1 *= ToLinear( gradient_Tex.rgb * 2 );
+		rough_tex1.x = saturate( rough_tex1.x * gradient_Tex.a * 2 );
+	}
+	albedo_tex2.rgb *= ToLinear( TintColor * 2 );
+
+	float blendShaderFactor = CrossBlendFactor ( rough_tex1.a, 1.0f - rough_tex2.a, i.Color.r, float3( BlendMasksMix, BlendMasksSharpness, BlendBias) );
+
+	float3 albedo = lerp(albedo_tex1, albedo_tex2, blendShaderFactor);
+	float roughness = lerp(rough_tex1.r, rough_tex2.r, blendShaderFactor);
+	roughness = max( MIN_ROUGHNESS, roughness );
+
+	float metalness = lerp(metalness_tex1, metalness_tex2, blendShaderFactor);
+	float ao = lerp(ao_tex1.r, ao_tex2.r, blendShaderFactor);
+
+	float2x2 toUvSpace0 = UvSpacesTransformation( tex1, tex0 );
+	float3 normal = BlendAndMixNormals( normal_tex1.xy * 2 - 1, mul( toUvSpace0, normal_tex2.xy * 2 - 1 ), blendShaderFactor, NormalsMix );
+
+	float3 worldNormal = normalize( mul( normal, TBN ) );
+ 
+	// do light
+	
+ 	float3 f0 = lerp( DIELECTRIC_F0, albedo, metalness );
+	albedo = albedo * (1.0 - metalness);
+
+	float3 ambientColor = ToLinear( AmbientColor );
+	float3 lightColor = ToLinear( LightColor ) * M_PI;
+	float3 rimColor = ToLinear( RimLightColor ) * M_PI;
+	float3 lightDir = normalize( -LightDir.xyz );
+
+	if( debugOutput == 2 || debugOutput == 3 || debugOutput == 4 )
+		albedo = 0.5f;
+	if( debugOutput == 4 )
+		albedo = 0.0f;
+	if( debugOutput == 3 || debugOutput == 4 )
+		ambientColor = 0.0f;
+
+	float3 finalColor = 0.0f;
+
+	// base
+	{
+		float3 diffuse = albedo * LightDiffuse( worldNormal, viewDirection, lightDir, f0, roughness, lightColor, ao );
+		float3 specular = LightSpecular( worldNormal, viewDirection, lightDir, f0, roughness, lightColor, ao );
+		if( debugOutput == 3 )
+			specular = 0.0f;
+		finalColor += diffuse + specular;
+	}
+
+	// rim
+	{
+		lightDir = -lightDir;
+		float3 diffuse = albedo * LightDiffuse( worldNormal, viewDirection, lightDir, f0, roughness, rimColor, ao );
+		float3 specular = LightSpecular( worldNormal, viewDirection, lightDir, f0, roughness, rimColor, ao );
+		if( debugOutput == 3 )
+			specular = 0.0f;
+		finalColor += diffuse + specular;
+	}
+
+	// IBL
+	if( UseIBL )
+	{
+		float3 reflected = reflect(-viewDirection, worldNormal);
+		float cubeMip = RougtnessToMip( roughness, 6 ); // for engine-specific cubemaps only
+		finalColor += DiffuseIblPrefiltered( EnvCubeTexture, roughness, worldNormal, viewDirection ) * albedo * ( float3( 1.0f ) - f0 );
+		if( debugOutput != 3 )
+			finalColor += SpecularIblPrefiltered( EnvCubeTexture, f0, roughness, cubeMip, reflected, worldNormal, viewDirection );
+	}
+	else
+	{
+		// ambient
+		finalColor += albedo * ambientColor;
+	}
+
+	switch( debugOutput )
+	{
+		case 0:
+		case 2:
+		case 3:
+		case 4:
+			return float4( ToSrgb( finalColor ), 1 );
+		case 1:
+			return float4( ToSrgb( albedo ), 1 );
+		case 5:
+			return float4( normal * 0.5 + 0.5, 1 );
+		case 6:
+			return float4( roughness.xxx, 1 );
+		case 7:
+			return float4( metalness.xxx, 1 );
+		case 8:
+			return float4( i.OrigColor.rgb, 1 );
+		case 9:
+			return float4( i.OrigColor.rrr, 1 );
+		case 10:
+			return float4( i.OrigColor.ggg, 1 );
+		case 11:
+			return float4( i.OrigColor.bbb, 1 );
+		case 12:
+			return float4( i.OrigColor.aaa, 1 );
+		case 13:
+			return float4( lerp( float3( 0, 1 ,0 ), float3( 1, 0, 0) , blendShaderFactor), 1 ); // Debug final blend mask as green on red
+		case 14:
+			return float4( i.noiseForPixel.rrr, 1 );
+		case 15:
+			return float4( i.noiseForPixel.ggg, 1 );
+		case 16:
+			return float4( gradient_Tex.rgb, 1 );
+	}
+	return float4( 1, 0, 0, 1 );
+}
+
+
+// techniques
+///////////////
+
+float4 PSShaded0(vert2pixel i) : COLOR
+{
+	return PSShaded( i, 0 );
+}
+float4 PSShaded1(vert2pixel i) : COLOR
+{
+	return PSShaded( i, 1 );
+}
+float4 PSShaded2(vert2pixel i) : COLOR
+{
+	return PSShaded( i, 2 );
+}
+float4 PSShaded3(vert2pixel i) : COLOR
+{
+	return PSShaded( i, 3 );
+}
+float4 PSShaded4(vert2pixel i) : COLOR
+{
+	return PSShaded( i, 4 );
+}
+float4 PSShaded5(vert2pixel i) : COLOR
+{
+	return PSShaded( i, 5 );
+}
+float4 PSShaded6(vert2pixel i) : COLOR
+{
+	return PSShaded( i, 6 );
+}
+float4 PSShaded7(vert2pixel i) : COLOR
+{
+	return PSShaded( i, 7 );
+}
+float4 PSShaded8(vert2pixel i) : COLOR
+{
+	return PSShaded( i, 8 );
+}
+float4 PSShaded9(vert2pixel i) : COLOR // Vert Col R
+{
+	return PSShaded( i, 9 );
+}
+float4 PSShaded10(vert2pixel i) : COLOR // Vert Col G
+{
+	return PSShaded( i, 10 );
+}
+float4 PSShaded11(vert2pixel i) : COLOR // Vert Col B
+{
+	return PSShaded( i, 11 );
+}
+float4 PSShaded12(vert2pixel i) : COLOR // Vert Col Alpha
+{
+	return PSShaded( i, 12 );
+}
+float4 PSShaded13(vert2pixel i) : COLOR // Blend Debug
+{
+	return PSShaded( i, 13 );
+}
+float4 PSShaded14(vert2pixel i) : COLOR // Noise 1 Debug
+{
+	return PSShaded( i, 14 );
+}
+float4 PSShaded15(vert2pixel i) : COLOR // Noise 2 Debug
+{
+	return PSShaded( i, 15 );
+}
+float4 PSShaded16(vert2pixel i) : COLOR // Gradient Debug
+{
+	return PSShaded( i, 16 );
+}
+
+technique Shaded {
+	pass {
+		DepthTestEnable=true;
+		DepthMask = true;
+		DepthFunc = LEqual;
+		VertexProgram = compile glslv VS();
+		FragmentProgram = compile glslf PSShaded0();
+	}
+}
+
+technique Albedo {
+	pass {
+		DepthTestEnable=true;
+		DepthMask = true;
+		DepthFunc = LEqual;
+		VertexProgram = compile glslv VS();
+		FragmentProgram = compile glslf PSShaded1();
+	}
+}
+
+technique Light {
+	pass {
+		DepthTestEnable=true;
+		DepthMask = true;
+		DepthFunc = LEqual;
+		VertexProgram = compile glslv VS();
+		FragmentProgram = compile glslf PSShaded2();
+	}
+}
+
+technique LightDiffuse {
+	pass {
+		DepthTestEnable=true;
+		DepthMask = true;
+		DepthFunc = LEqual;
+		VertexProgram = compile glslv VS();
+		FragmentProgram = compile glslf PSShaded3();
+	}
+}
+
+technique LightSpec {
+	pass {
+		DepthTestEnable=true;
+		DepthMask = true;
+		DepthFunc = LEqual;
+		VertexProgram = compile glslv VS();
+		FragmentProgram = compile glslf PSShaded4();
+	}
+}
+
+technique Normal {
+	pass {
+		DepthTestEnable=true;
+		DepthMask = true;
+		DepthFunc = LEqual;
+		VertexProgram = compile glslv VS();
+		FragmentProgram = compile glslf PSShaded5();
+	}
+}
+
+technique Rougness {
+	pass {
+		DepthTestEnable=true;
+		DepthMask = true;
+		DepthFunc = LEqual;
+		VertexProgram = compile glslv VS();
+		FragmentProgram = compile glslf PSShaded6();
+	}
+}
+
+technique Metal {
+	pass {
+		DepthTestEnable=true;
+		DepthMask = true;
+		DepthFunc = LEqual;
+		VertexProgram = compile glslv VS();
+		FragmentProgram = compile glslf PSShaded7();
+	}
+}
+technique VertColorRGB {
+	pass {
+		DepthTestEnable=true;
+		DepthMask = true;
+		DepthFunc = LEqual;
+		VertexProgram = compile glslv VS();
+		FragmentProgram = compile glslf PSShaded8();
+	}
+}
+technique VertColorR {
+	pass {
+		DepthTestEnable=true;
+		DepthMask = true;
+		DepthFunc = LEqual;
+		VertexProgram = compile glslv VS();
+		FragmentProgram = compile glslf PSShaded9();
+	}
+}
+technique VertColorG {
+	pass {
+		DepthTestEnable=true;
+		DepthMask = true;
+		DepthFunc = LEqual;
+		VertexProgram = compile glslv VS();
+		FragmentProgram = compile glslf PSShaded10();
+	}
+}
+technique VertColorB {
+	pass {
+		DepthTestEnable=true;
+		DepthMask = true;
+		DepthFunc = LEqual;
+		VertexProgram = compile glslv VS();
+		FragmentProgram = compile glslf PSShaded11();
+	}
+}
+technique VertColorAlpha {
+	pass {
+		DepthTestEnable=true;
+		DepthMask = true;
+		DepthFunc = LEqual;
+		VertexProgram = compile glslv VS();
+		FragmentProgram = compile glslf PSShaded12();
+	}	
+}
+technique BlendDebug {
+	pass {
+		DepthTestEnable=true;
+		DepthMask = true;
+		DepthFunc = LEqual;
+		VertexProgram = compile glslv VS();
+		FragmentProgram = compile glslf PSShaded13();
+	}	
+}
+technique SimplexNoise3d_1 {
+	pass {
+		DepthTestEnable=true;
+		DepthMask = true;
+		DepthFunc = LEqual;
+		VertexProgram = compile glslv VS();
+		FragmentProgram = compile glslf PSShaded14();
+	}	
+}
+technique SimplexNoise3d_2 {
+	pass {
+		DepthTestEnable=true;
+		DepthMask = true;
+		DepthFunc = LEqual;
+		VertexProgram = compile glslv VS();
+		FragmentProgram = compile glslf PSShaded15();
+	}	
+}
+technique TintDebug {
+	pass {
+		DepthTestEnable=true;
+		DepthMask = true;
+		DepthFunc = LEqual;
+		VertexProgram = compile glslv VS();
+		FragmentProgram = compile glslf PSShaded16();
+	}	
+}

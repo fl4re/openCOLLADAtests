@@ -1,36 +1,64 @@
-from Core.Common.Util import *
+from argparse import ArgumentParser
+from tools.maya.maya import Maya
+from tools.max.max import Max
+from common.opencollada import OpenCOLLADA
+from common.test_runner import TestRunner
+from common.util import *
 
-currentDirectory = os.path.dirname(os.path.realpath(__file__))
+# Runs this python file to launch tests.
 
-maya_path = os.environ.get('MAYA_PATH2015_X64')
-if maya_path is None:
-    if get_platform() == 'windows':
-        os.environ['MAYA_PATH2015_X64'] = 'C:\\Program Files\\Autodesk\\Maya2015'
-    elif get_platform() == 'macosx':
-        os.environ['MAYA_PATH2015_X64'] = '/Applications/Autodesk/maya2015'
-
-opencollada_path = os.environ.get('OPENCOLLADA_PATH')
-if opencollada_path is None:
-    os.environ['OPENCOLLADA_PATH'] = os.path.normpath(
-        os.path.join(currentDirectory, '..' + os.path.sep + 'OpenCOLLADA'))
-
-print 'using OPENCOLLADA_PATH=' + os.environ['OPENCOLLADA_PATH']
-print 'using MAYA_PATH2015_X64=' + os.environ['MAYA_PATH2015_X64']
-
-if not os.path.exists(os.environ['MAYA_PATH2015_X64']):
-    print "Error: " + os.environ['MAYA_PATH2015_X64'] + " doesn't exist."
+if __name__ != '__main__':
     sys.exit(1)
 
-if not os.path.exists(os.environ['OPENCOLLADA_PATH']):
-    print "Error: " + os.environ['OPENCOLLADA_PATH'] + " doesn't exist."
+# Register tools here.
+tools = [
+    Maya(),
+    Max()
+]
+
+plugins_str = ''
+first = True
+for tool in tools:
+    if tool.is_supported():
+        if not first:
+            plugins_str += ', '
+        plugins_str += tool.tool_name()
+        first = False
+
+parser = ArgumentParser(description='OpenCOLLADA plugins tests')
+parser.add_argument('--tool', default='Maya', help='Tool to test (' + plugins_str + ')')
+parser.add_argument('--version', default='2015', help='Tool version (2015, 2017...)')
+options = parser.parse_args()
+
+tested_tool = None
+for tool in tools:
+    if tool.tool_name() == options.tool:
+        tested_tool = tool
+        tested_tool.set_version(options.version)
+        break
+
+if tested_tool is None:
+    print 'Unsupported tool: ' + options.tool
     sys.exit(1)
 
-exitcode = 0
+print 'Testing ' + tested_tool.plugin_name() + ' ' + options.version + " x64"
 
-# install COLLADAMaya plugin
-exitcode |= run('python install_plugin.py', currentDirectory)
+print 'Using OpenCOLLADA path=' + OpenCOLLADA.path()
+print 'Using ' + tested_tool.tool_name() + ' path=' + tested_tool.path()
 
-# run tests
-exitcode |= run('python main.py --export-test', currentDirectory)
+# Install plugin.
+print 'Installing ' + tested_tool.plugin_name() + ' plugin...'
+tested_tool.install_plugin()
 
-sys.exit(exitcode)
+# Run tests.
+res = 0
+test_runner = TestRunner(tested_tool)
+res |= test_runner.run_export_test()
+# res |= test_runner.test_import()
+
+if res == 0:
+    print tested_tool.plugin_name() + ' tests SUCCEEDED'
+else:
+    print tested_tool.plugin_name() + ' tests FAILED'
+
+sys.exit(res)

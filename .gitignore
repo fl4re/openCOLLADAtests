@@ -6,3 +6,5 @@ OpenMayaErrorLog.txt
 /Core/SchemaValidate/SchemaValidate/bin
 /Core/SchemaValidate/SchemaValidate/obj
 /.idea
+/test_results
+.mayaSwatches
