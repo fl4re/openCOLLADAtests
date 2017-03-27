@@ -1,0 +1,4 @@
+{
+	'export_options': 'sourceDataFormat=Relative to Maya project workspace;bakeTransforms=1;exportLights=0',
+	'mayapy': True
+}
