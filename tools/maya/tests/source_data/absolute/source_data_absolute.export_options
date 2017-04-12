@@ -1,0 +1,4 @@
+{
+	'export_options': 'sourceDataFormat=Absolute;bakeTransforms=1;exportLights=0',
+	'mayapy': True
+}
