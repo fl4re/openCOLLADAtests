@@ -3,7 +3,6 @@
 import sys
 import maya.standalone as std
 import maya.cmds as cmds
-import maya.mel as mel
 std.initialize(name='python')
 
 plugin_name = sys.argv[1]
@@ -15,14 +14,7 @@ option = sys.argv[4]
 exporter = 'OpenCOLLADA exporter'
 
 
-def export_file(plugin_name, input_filename, ouput_filename, option):
-
-    source_dir = input_filename
-    source_dir = source_dir.replace('\\', '/')
-    last_sep = source_dir.rfind('/')
-    source_dir = source_dir[0:last_sep]
-    mel.eval('setProject "' + source_dir + '"')
-
+def exportFile(plugin_name, input_filename, ouput_filename, option):
     try:
 
         # Load colladaMaya plugin
@@ -39,4 +31,4 @@ def export_file(plugin_name, input_filename, ouput_filename, option):
         sys.exit(-1)
 
 
-export_file(plugin_name, input_filename, output_filename, option)
+exportFile(plugin_name, input_filename, output_filename, option)

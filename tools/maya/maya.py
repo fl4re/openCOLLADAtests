@@ -97,12 +97,14 @@ class Maya(Tool):
 
         if use_mayapy:
             # Run Maya without UI.
-            return run('"' + self.mayapy_path + '"' +
-                       ' "' + self.export_script_path + '"' +
-                       ' "' + self.colladamaya_path + '"' +
-                       ' "' + input_file + '"' +
-                       ' "' + output_file + '" ' +
-                       ' "' + export_options + '"')
+            return run(
+                '"' + self.mayapy_path + '"' +
+                ' "' + self.export_script_path + '"' +
+                ' "' + self.colladamaya_path + '"' +
+                ' "' + input_file + '"' +
+                ' "' + output_file + '" ' +
+                export_options
+            )
         else:
             # Run Maya with UI (required to use cgfx for example)
             mel_path = os.path.splitext(output_file)[0] + '.mel'
