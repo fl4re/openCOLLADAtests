@@ -6,17 +6,17 @@ from util import *
 # Use this class to access OpenCOLLADA related stuff.
 #
 class OpenCOLLADA:
-    opencolla_path = None
+    opencollada_path = None
     validator_path = None
 
     # Returns path to OpenCOLLADA root directory.
     @staticmethod
     def path():
-        if OpenCOLLADA.opencolla_path is None:
-            OpenCOLLADA.opencolla_path = os.environ.get('OPENCOLLADA_PATH')
-            if OpenCOLLADA.opencolla_path is None:
-                OpenCOLLADA.opencolla_path = os.path.normpath(os.path.join(OpenCOLLADATests.path(), '..' + os.path.sep + 'OpenCOLLADA'))
-        return OpenCOLLADA.opencolla_path
+        if OpenCOLLADA.opencollada_path is None:
+            OpenCOLLADA.opencollada_path = os.environ.get('OPENCOLLADA_PATH')
+            if OpenCOLLADA.opencollada_path is None:
+                OpenCOLLADA.opencollada_path = os.path.normpath(os.path.join(OpenCOLLADATests.path(), '..' + os.path.sep + 'OpenCOLLADA'))
+        return OpenCOLLADA.opencollada_path
 
     # Runs DAEValidator tool against given DAE file.
     @staticmethod
