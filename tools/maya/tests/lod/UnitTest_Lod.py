@@ -4,7 +4,7 @@ import common.test_case_base
 class LODTestSuite(common.test_case_base.TestCaseBase):
     def setUp(self):
         super(self.__class__, self).setUp()
-        self.load_dae(__file__, 'GroupLOD.mb')
+        self.doc = self.load_dae(__file__, 'GroupLOD.mb')
 
     def test_lod(self):
         #

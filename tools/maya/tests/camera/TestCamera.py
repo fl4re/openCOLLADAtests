@@ -4,7 +4,7 @@ import common.test_case_base
 class CameraTestSuite(common.test_case_base.TestCaseBase):
     def setUp(self):
         super(self.__class__, self).setUp()
-        self.load_dae(__file__, 'Cube.mb')
+        self.doc = self.load_dae(__file__, 'Cube.mb')
 
     def test_camera_values(self):
         tags = ['yfov', 'aspect_ratio', 'znear', 'zfar', 'horizontal_aperture', 'vertical_aperture',

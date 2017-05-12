@@ -22,10 +22,11 @@ class TestCaseBase(unittest.TestCase):
     # Cube.mb
     # Computed DAE path:
     # C:\OpenCOLLADAtests\test_results\colladamaya\tests\camera\Cube.dae
-    def load_dae(self, unittest_file_path, source_file_name):
+    @staticmethod
+    def load_dae(unittest_file_path, source_file_name):
         dae = TestRunner.output_dae_from_input(
             os.path.join(os.path.normpath(os.path.dirname(unittest_file_path)), source_file_name))
-        self.doc = Et.parse(dae)
+        return Et.parse(dae)
 
     # Returns first element with attribute 'id'=id.
     @staticmethod

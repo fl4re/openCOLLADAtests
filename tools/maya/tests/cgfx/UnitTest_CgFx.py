@@ -4,7 +4,7 @@ import common.test_case_base
 class Test_CgFx(common.test_case_base.TestCaseBase):
     def setUp(self):
         super(self.__class__, self).setUp()
-        self.load_dae(__file__, 'CgFx.ma')
+        self.doc = self.load_dae(__file__, 'CgFx.ma')
 
     def test_cgfx_1(self):
         nodes = self.get_elements_by_tag(self.doc.getroot(), 'collada:library_effects/collada:effect')
