@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from tools.maya.maya import Maya
 from tools.max.max import Max
+from tools.mobu.mobu import Mobu
 from common.opencollada import OpenCOLLADA
 from common.test_runner import TestRunner
 from common.util import *
@@ -13,7 +14,8 @@ if __name__ != '__main__':
 # Register tools here.
 tools = [
     Maya(),
-    Max()
+    Max(),
+    Mobu()
 ]
 
 plugins_str = ''
